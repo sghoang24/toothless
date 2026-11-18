@@ -1,0 +1,35 @@
+{
+  "name": "toothless",
+  "version": "0.1.0",
+  "description": "A portable engineering workflow for coding agents, packaged as composable skills. Brainstorm -> Roadmap -> Design -> Plan -> Development (loop) -> Deploy.",
+  "keywords": [
+    "agent-skills",
+    "skills",
+    "claude-code",
+    "codex",
+    "copilot",
+    "workflow",
+    "engineering",
+    "spec-driven",
+    "code-review"
+  ],
+  "license": "MIT",
+  "homepage": "https://github.com/sghoang24/toothless#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sghoang24/toothless.git"
+  },
+  "bugs": {
+    "url": "https://github.com/sghoang24/toothless/issues"
+  },
+  "files": [
+    "skills",
+    "commands",
+    "AGENTS.md",
+    "README.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=18"
+  }
+}
