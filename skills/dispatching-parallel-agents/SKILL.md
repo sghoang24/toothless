@@ -12,12 +12,12 @@ This skill is **self-contained** — use it whenever you (or a coordinator) are 
 
 ## The Model
 
-| Thing            | What it is                                                        | Where it lives                                          |
-| ---------------- | ----------------------------------------------------------------- | ------------------------------------------------------- |
+| Thing            | What it is                                                        | Where it lives                                     |
+| ---------------- | ----------------------------------------------------------------- | -------------------------------------------------- |
 | **Coordinator**  | The session that dispatches, tracks, and merges. Owns the result. | whoever is coordinating (e.g. `fight` when active) |
-| **Agent**        | One task in its own worktree + branch + context.                  | `git-worktrees`                                         |
-| **Task**         | One reviewable PR (≈300 lines). The unit that fans out.           | `specs/NNN-slug/tasks.md`                               |
-| **Independence** | No shared files, no dependency, no ordering between two tasks.    | the precondition for fan-out                            |
+| **Agent**        | One task in its own worktree + branch + context.                  | `git-worktrees`                                    |
+| **Task**         | One reviewable PR (≈300 lines). The unit that fans out.           | `specs/NNN-slug/tasks.md`                          |
+| **Independence** | No shared files, no dependency, no ordering between two tasks.    | the precondition for fan-out                       |
 
 ## When to Use
 
@@ -48,7 +48,7 @@ Create one worktree + branch per task (`git-worktrees`, `feat/NNN-slug` per `AGE
 
 ### 3. Prepare crafted context per agent
 
-For each agent, assemble: the task and its `Verify:` line, the newest spec revision, the relevant design sections, its worktree path and branch, and the conventions from `AGENTS.md`. Keep it to what the task needs — never your own session history.
+For each agent, assemble: the task and its `Verify:` line, the feature's approved spec (`specs/NNN-slug/spec.md`), the relevant design sections, its worktree path and branch, and the conventions from `AGENTS.md`. Keep it to what the task needs — never your own session history.
 
 ### 4. Dispatch
 

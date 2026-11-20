@@ -18,7 +18,7 @@ It sits at **Design** in the workflow: `Brainstorm -> Roadmap -> Design -> Plan 
 
 | Thing            | What it is                                                                    | Where it lives                                                     |
 | ---------------- | ----------------------------------------------------------------------------- | ------------------------------------------------------------------ |
-| **Spec**         | Approved requirements for one feature. The _what_ and _why_.                  | `specs/NNN-slug/YYYY-MM-DD-*.md`                                   |
+| **Spec**         | Approved requirements for one feature. The _what_ and _why_.                  | `specs/NNN-slug/spec.md`                                           |
 | **Roadmap**      | Which feature, in which phase, in what order. The _when_.                     | `specs/_roadmap.md`, `specs/_state.md`                             |
 | **Architect**    | Subagent that drafts the system design.                                       | [references/architect-prompt.md](./references/architect-prompt.md) |
 | **UI designer**  | Subagent that designs screens + static mocks (only if the spec has a UI).     | [references/ui-design-prompt.md](./references/ui-design-prompt.md) |
@@ -61,7 +61,7 @@ See [references/design-depth.md](./references/design-depth.md) for the tiers in 
 
 ## Inputs
 
-- `specs/NNN-slug/YYYY-MM-DD-*.md` — the agreed requirements (newest dated file).
+- `specs/NNN-slug/spec.md` — the agreed requirements (`status: approved`; a `status: spec` draft means gate two has not passed — stop and send it back to `roadmap`).
 - `specs/_roadmap.md` + `specs/_state.md` — the feature's phase, dependencies, and place in the order.
 - `AGENTS.md` — conventions (service layer, structure, stack, PR size).
 - `docs/` — existing PRD, ADRs, `architecture/architecture.md`, and `design/` to extend rather than replace.
@@ -84,7 +84,7 @@ See [references/design-depth.md](./references/design-depth.md) for the tiers in 
 
 ### 1. Load the spec and its roadmap position, and decide the UI question
 
-Read the newest spec revision and its change log, and `specs/_roadmap.md` + `specs/_state.md` for the feature's phase, dependencies, and order. List the requirements the design must make buildable, and the phase/dependency constraints. Read any existing `docs/architecture/architecture.md`, ADRs, and `docs/design/` so you extend, not duplicate. Decide: **does this spec have a user-facing surface?** That answer gates whether the UI designer subagent runs.
+Read the approved spec (`specs/NNN-slug/spec.md`, `status: approved`) and its change log, and `specs/_roadmap.md` + `specs/_state.md` for the feature's phase, dependencies, and order. List the requirements the design must make buildable, and the phase/dependency constraints. Read any existing `docs/architecture/architecture.md`, ADRs, and `docs/design/` so you extend, not duplicate. Decide: **does this spec have a user-facing surface?** That answer gates whether the UI designer subagent runs.
 
 ### 2. Pick the tier
 
@@ -124,9 +124,11 @@ Once the design is stable, draw its views with the **`archify`** skill — e.g. 
 
 Write the agreed system design to `docs/architecture/architecture.md` (merged with any existing content, not overwritten). When there's a UI, write the agreed screens, flows, states, and design system to `docs/design/`. Record each genuinely hard-to-reverse decision as an ADR under `docs/architecture/adr/` per `AGENTS.md`. Link the diagram artifacts.
 
+Also write the feature's short `specs/NNN-slug/design.md` — the shape of **this** feature's solution (data model, interfaces, flows, screens it touches), linking to `docs/architecture/architecture.md` rather than restating it, or `design: skipped — <reason>` when the spec needs no design. `planning` and the loop read that file; without it the feature folder has a dangling reference.
+
 ### 9. Gate
 
-Stop at the design. Hand off to Plan only after `docs/architecture/architecture.md` (and `docs/design/` for a UI) reflect the agreed design and the diagrams are drawn — then `planning` cuts it into tasks. Update the feature's `specs/NNN-slug/status.md` (`next`, `notes`).
+Stop at the design. Hand off to Plan only after `docs/architecture/architecture.md` (and `docs/design/` for a UI) reflect the agreed design, the diagrams are drawn, and the feature's `specs/NNN-slug/design.md` is written — then `planning` cuts it into tasks. Update the feature's `specs/NNN-slug/status.md` (`next`, `notes`).
 
 ## Repository Layout
 
@@ -135,8 +137,9 @@ specs/
 ├── _roadmap.md            # phases + features (owned by roadmap)
 ├── _state.md              # current phase + feature (owned by roadmap)
 ├── _status.md             # landed-PR ledger (owned by roadmap)
-└── NNN-slug/              # requirements (what and why)
-    └── YYYY-MM-DD-*.md    # agreed spec revision
+└── NNN-slug/              # one feature
+    ├── spec.md            # approved requirements + AC-n (owned by roadmap)
+    └── design.md          # shape of THIS feature's solution  <- coordinator writes here
 docs/
 ├── product/PRD.md
 ├── architecture/
@@ -147,6 +150,7 @@ docs/
 ```
 
 - **docs/architecture/architecture.md** answers _how the pieces fit together_; it references the spec, the roadmap, and diagrams rather than duplicating them.
+- **specs/NNN-slug/design.md** is the short, feature-scoped view of that design — what `planning` and the loop read. It links to `architecture.md`; it never restates it.
 - **docs/design/** answers _what the user sees_ — screens, flows, states, design system, and the static mocks. Only exists when the spec has a UI.
 - **docs/architecture/adr/** holds the decisions that are hard to reverse, with the alternatives that were rejected.
 - **`archify` artifacts** are the diagrams; link them from `docs/architecture/architecture.md`.
@@ -167,7 +171,7 @@ docs/
 | "I opened the Lavish artifact, so we're reviewing"  | Opened ≠ listening. Run `lavish-axi poll` (foreground) and keep it alive, or the browser says "your agent is not listening".          |
 | "I handled the feedback, so I'm done"               | Handled ≠ replied. Run `lavish-axi reply` (or re-poll with `--agent-reply`) or the board sticks on `Working` and the notes stay open. |
 | "They said it looks good, so I'll start coding"     | Shown ≠ agreed, and agreed design ≠ approval to build. Wait for the gate.                                                             |
-| "The spec is vague here, I'll design around it"     | Send it back. Spec changes go through brainstorming; scope shifts through roadmap.                                                    |
+| "The spec is vague here, I'll design around it"     | Send it back. A spec change goes back to `roadmap` (a new revision, gate two again).                                                  |
 | "I'll put the logic in the controller, it's faster" | `AGENTS.md`: business logic lives in the service layer. The design must reflect that.                                                 |
 | "I'll overwrite docs/architecture/architecture.md"  | Extend it. Merge the new design with what's there.                                                                                    |
 | "I'll draw every diagram type to be safe"           | Draw the views this design needs at its tier — not one of each.                                                                       |
@@ -176,7 +180,7 @@ docs/
 
 You are done when ALL are true:
 
-- [ ] Design traces to the agreed spec (newest revision) and its roadmap position; no invented scope or order. `planning` runs after the design is agreed, not before.
+- [ ] Design traces to the approved spec (`specs/NNN-slug/spec.md`, `status: approved`) and its roadmap position; no invented scope or order. `planning` runs after the design is agreed, not before.
 - [ ] A tier (Light / Standard / Deep) is chosen and stated, and the design matches it — nothing over-built.
 - [ ] The architect subagent was dispatched with crafted context (not this session's history); the UI designer too when the spec has a UI.
 - [ ] If there's no UI, the UI designer was skipped and that was stated.
@@ -185,6 +189,7 @@ You are done when ALL are true:
 - [ ] The design was shown as a Lavish artifact (system design + a UI mock when there's a UI) and the user's feedback was folded in (the poll was kept alive until they answered, and you replied so the board isn't stuck on `Working`).
 - [ ] Diagrams for the needed views are drawn with `archify` and linked.
 - [ ] `docs/architecture/architecture.md` updated (merged, not overwritten); `docs/design/` written for a UI; hard-to-reverse decisions recorded as ADRs.
+- [ ] The feature's `specs/NNN-slug/design.md` written (or `design: skipped — <reason>`), linking to `architecture.md` instead of restating it.
 - [ ] No product code was written; the UI mock is static.
 - [ ] The feature's `specs/NNN-slug/status.md` updated.
 

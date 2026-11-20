@@ -16,7 +16,7 @@ argument-hint: "Point at the agreed spec, e.g. specs/001-auth/2026-11-12-auth.md
 
 | Thing             | What it is                                                    | Where it lives                      |
 | ----------------- | ------------------------------------------------------------- | ----------------------------------- |
-| **Spec**          | Agreed requirements. The _what_ the UI must serve.            | `specs/NNN-slug/YYYY-MM-DD-*.md`    |
+| **Spec**          | Agreed requirements. The _what_ the UI must serve.            | `specs/NNN-slug/spec.md`            |
 | **Screens**       | The surfaces the user sees.                                   | named in the design                 |
 | **Flows**         | The paths between screens for a user goal.                    | named in the design                 |
 | **Design system** | The visual direction — style, palette, type, spacing, states. | `docs/design/`                      |
@@ -43,7 +43,7 @@ argument-hint: "Point at the agreed spec, e.g. specs/001-auth/2026-11-12-auth.md
 
 ### 1. Load the spec, roadmap position, and system design
 
-Read the newest spec revision and its acceptance criteria, the feature's place in `specs/_roadmap.md` + `specs/_state.md`, and the parts of `docs/architecture/architecture.md` the screens touch. List the user-facing features and, for each, what the user is trying to do. Read any existing `docs/design/` and design tokens so you extend, not fork.
+Read the approved spec (`specs/NNN-slug/spec.md`, `status: approved`) and its acceptance criteria, the feature's place in `specs/_roadmap.md` + `specs/_state.md`, and the parts of `docs/architecture/architecture.md` the screens touch. List the user-facing features and, for each, what the user is trying to do. Read any existing `docs/design/` and design tokens so you extend, not fork.
 
 ### 2. Decide the design scope
 

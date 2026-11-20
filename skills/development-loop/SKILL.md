@@ -87,7 +87,7 @@ This does not replace `dispatching-parallel-agents`: a batch is **one** agent on
 
 ### 1. Load the feature and its tasks
 
-Read `specs/_state.md` (current phase/feature) and the feature's `specs/NNN-slug/status.md` (`status`, `current_unit`, `cycle`, `cycle_cap`, `next`, `notes`). Read `specs/NNN-slug/tasks.md` — the task list, each task's `Verify:` line, and the feature's `## Test strategy` section. Read the newest spec revision and the parts of `docs/architecture/architecture.md` the tasks touch.
+Read `specs/_state.md` (current phase/feature) and the feature's `specs/NNN-slug/status.md` (`status`, `current_unit`, `cycle`, `cycle_cap`, `next`, `notes`). Read `specs/NNN-slug/tasks.md` — the task list, each task's `Verify:` line, and the feature's `## Test strategy` section. Read the spec (`specs/NNN-slug/spec.md`, `status: approved`) and the parts of `docs/architecture/architecture.md` the tasks touch.
 
 If a task has no outcome or nothing to verify against, it is not sized: send it back to `planning` before building anything.
 
@@ -106,7 +106,7 @@ For each unit, in `depends_on` order (a batch is ready only when every member is
 3. **Read the report.** The implementer returns a short status (`DONE`, `DONE_WITH_CONCERNS`, `BLOCKED`, `NEEDS_CONTEXT`) and a report file. On `BLOCKED` or `NEEDS_CONTEXT`, answer the question and re-dispatch rather than guessing. Treat the report as claims: check the diff and re-run anything you doubt.
 4. **Verify the evidence.** Confirm the report's test evidence is fresh and complete (RED seen for the right reason, GREEN, full suite, pristine output). This is the `verify` step — it is held by the implementer's evidence and your reading of it, not a separate dispatch. Red, or evidence missing → back to `implement` (cycle).
 5. **Review the unit.** Generate the diff for `BASE..HEAD` and dispatch **one** fresh reviewer subagent with `references/reviewer-prompt.md` and `references/review.md`. For a batch, the reviewer sees every member's files — the review is looser on nothing, only fewer in number. Never the author's session.
-6. **Route the outcome.** Findings in the code → `implement`. Findings in the task list → `planning`. Findings in the design → `system-design`. Findings in the requirement → `system-design` (revise the spec), or `brainstorming` if the PRD is wrong.
+6. **Route the outcome.** Findings in the code → `implement`. Findings in the task list → `planning`. Findings in the design → `system-design`. Findings in the requirement → `roadmap` (a spec revision, delta only, then its Lavish gate again); only if the PRD itself is wrong does it go to `brainstorming`.
 7. **Close the unit.** Clean verify and a clean review (or only Minor findings) → the unit is done. Tick **each member's** checkbox in `tasks.md`, record it in `specs/NNN-slug/status.md` (`next`, `notes`), and move to the next unit. The **branch** is not landed here — it lands once per feature, after the final review (step 5).
 
 ### 4. Track the cycle
