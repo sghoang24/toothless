@@ -57,11 +57,26 @@ One paragraph: what it is, for whom, why now.
 
 Rules: one requirement per ID, each phrased so it can be checked; never renumber existing IDs (retire them with "(removed)" instead), because `roadmap` and `specs/` refer to them.
 
-## 2. Feature spec (`specs/NNN-slug/YYYY-MM-DD-<topic>.md`, feature mode)
+## 2. Feature spec (`specs/NNN-slug/spec.md`, feature mode / standalone, or a revision)
 
-A complete, stand-alone document each revision; the newest date is current.
+One file per feature. Each revision is a complete, stand-alone document; the `Revision:` line says
+which is current, and a change log sits at the top.
+
+In the pipeline this same file is written by the `roadmap` spec writer
+([../../roadmap/references/spec-writer-prompt.md](../../roadmap/references/spec-writer-prompt.md)) —
+use that skeleton when a roadmap exists, so both paths produce the same shape. This mode adds the
+conversation-derived sections (approaches, decisions) that a derived spec does not need.
 
 ```markdown
+---
+feature: NNN-slug
+phase: N # or null when standalone
+status: spec # spec | approved
+revision: YYYY-MM-DD
+covers: [FR-3, FR-4]
+depends_on: []
+---
+
 # <feature> — spec
 
 Revision: YYYY-MM-DD (supersedes YYYY-MM-DD) # first revision: "Revision: YYYY-MM-DD (initial)"
@@ -92,12 +107,19 @@ Chosen: <approach> — why. Rejected: <approach> — why.
 - AC-1: Given <state>, when <action>, then <observable result>.
 - AC-2: ...
 
+## AC → requirement mapping
+
+| AC   | Requirement | Phase exit criterion (if it serves one) |
+| ---- | ----------- | --------------------------------------- |
+| AC-1 | FR-3        | —                                       |
+
 ## Risks and open questions
 
 ## Left to the builder
 ```
 
-Every acceptance criterion must be testable by someone who has not read the conversation. `planning`, `test-strategy`, and the loop's `review` rely on them.
+Every acceptance criterion must be testable by someone who has not read the conversation, and every
+one appears in the mapping table. `planning`, `test-strategy`, and the loop's `review` rely on them.
 
 ## 3. Short design (small change, shown in chat)
 
