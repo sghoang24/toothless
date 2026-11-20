@@ -113,17 +113,20 @@ directly, or let fight drive — the skills don't depend on it.
   `status.md` for the current phase's features. It is the **only writer of `spec.md`**, and also
   **replans** as phases close or scope shifts — re-validating the next phase's specs from their
   change logs.
-- **system-design** — the **Design phase orchestrator**. It right-sizes the design
-  (Light / Standard / Deep), dispatches the design work to fresh subagents, reconciles them,
-  runs the Lavish review, and writes the agreed design. Output:
-  `docs/architecture/architecture.md` (+ `docs/design/` for a UI) and ADRs.
+- **system-design** — the **Design phase orchestrator**. It right-sizes each feature's design
+  (Light / Standard / Deep), dispatches one architect per feature (parallel across a phase) plus a
+  UI designer when a spec has a UI, reconciles them per feature and across features, runs one
+  Lavish review, and writes the agreed design. Designs **one feature, or the whole current phase**
+  in one pass. Output: `docs/architecture/architecture.md`, `docs/design/` for a UI, each feature's
+  `specs/NNN-slug/design.md`, and ADRs.
 - **ui-design** — the UI half of Design: turns the spec into screens, flows, states, and a
   design system, then mocks them as **static HTML** (no product code) for review. Dispatched by
   `system-design`; uses `ui-ux-pro-max` for the visual direction when it's installed.
-- **planning** — plans **one feature**: turns the agreed spec and design into an ordered list of
-  PR-sized tasks, each traced to acceptance criteria and carrying its own tests. It closes the Plan
-  phase by settling the feature's `## Test strategy` (via `test-strategy`). Output:
-  `specs/NNN-slug/tasks.md`.
+- **planning** — plans **a feature or the whole current phase**: turns the approved acceptance criteria
+  into ordered lists of PR-sized tasks, each traced to a criterion and carrying its own tests. Phase
+  mode plans every feature of the phase in one run and settles one shared `## Test strategy` via
+  `test-strategy`. A design is optional enrichment — with none, the technical calls land as plan
+  calls. Output: `specs/NNN-slug/tasks.md` per planned feature.
 
 ### Loop skills (`implement -> verify -> review`)
 
@@ -210,14 +213,8 @@ their results flow back through the normal loop; standalone, they still hold the
    per phase writes `specs/NNN-slug/spec.md` for every feature, with testable acceptance criteria
    and an `AC → requirement mapping`; you approve those through a second Lavish review.
    → `specs/_roadmap.md`, `specs/_state.md`, `specs/_status.md`, and an approved `spec.md` per feature.
-3. **Design.** `system-design` picks a tier, dispatches an **architect** subagent (and a **UI
-   designer** when the spec has a UI), reconciles them, shows the result via **Lavish**, then
-   writes `docs/architecture/architecture.md` (+ `docs/design/`, plus the feature's short
-   `specs/NNN-slug/design.md`) and draws diagrams with **archify**.
-4. **Plan.** `planning` turns the feature's spec and agreed design into an ordered list of
-   PR-sized tasks, each traced to acceptance criteria with its own tests. As the last step of this
-   phase, `test-strategy` settles the feature's `## Test strategy` (command, layers, seams).
-   → `specs/NNN-slug/tasks.md`.
+3. **Design.** `system-design` picks a tier per feature and designs **the whole current phase in one pass**: one **architect** per feature (parallel), plus a **UI designer** when a spec has a UI, reconciled per feature and across features, then one **Lavish** review. It writes `docs/architecture/architecture.md`, `docs/design/`, each feature's short `specs/NNN-slug/design.md`, and draws diagrams with **archify**.
+4. **Plan.** `planning` plans **the phase in one pass** — one task list per feature, ordered by dependency, each task traced to an acceptance criterion with its own tests. `test-strategy` settles one shared command and seam set for the phase, with per-feature layers. The design sharpens this but is not required. → `specs/NNN-slug/tasks.md` for every feature of the phase.
 5. **Development loop.** For each task, `development-loop` extracts the task into a **brief file**,
    dispatches a fresh **implementer** subagent (which builds it test-first following the feature's
    test strategy, proves it green, and writes a report), then reads that evidence and dispatches a
@@ -282,7 +279,7 @@ runs (the first spec bootstraps what's missing).
     │                      #     ui-design-prompt.md, design-depth.md, question-bank.md,
     │                      #     architecture-template.md)
     ├── ui-design/         #   screens + static mocks
-    ├── planning/          #   per-feature tasks (+ references/tasks-template.md,
+    ├── planning/          #   phase or feature tasks (+ references/tasks-template.md,
     │                      #     task-sizing.md, repo-layout.md, question-bank.md)
     ├── test-strategy/     #   Plan phase: feature test strategy (what/where/how much)
     ├── development-loop/  #   the loop: implement -> verify -> review, per unit (task or batch)

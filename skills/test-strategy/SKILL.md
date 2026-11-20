@@ -27,7 +27,7 @@ The layer is chosen by **what the test must prove**, not by habit. The more of t
 
 ## When to Use
 
-- When **planning a feature finishes cutting tasks** — to settle its test strategy before the loop starts (this skill is part of the Plan phase).
+- When **planning finishes cutting tasks** for a feature or for a whole phase — to settle the strategy before the loop starts (this skill is part of the Plan phase). Settle it **once per phase** when the phase's features are planned together: one command, one set of shared seams, so the phase does not end up with three different fakes for one clock.
 - When a new task or a spec revision adds behavior the strategy doesn't yet cover.
 - When a behavior is hard to test and you're tempted to mock everything.
 - When a test is flaky, slow, or tests implementation detail instead of behavior.
@@ -40,7 +40,7 @@ The layer is chosen by **what the test must prove**, not by habit. The more of t
 
 | Scope               | What runs                                       | Owned by      | When                                       |
 | ------------------- | ----------------------------------------------- | ------------- | ------------------------------------------ |
-| **Plan phase**      | The feature's unit + integration strategy       | this skill    | once, after tasks are cut, before the loop |
+| **Plan phase**      | The phase's (or feature's) unit + integration strategy | this skill    | once, after tasks are cut, before the loop |
 | **Loop (per unit)** | `implement` writes tests; `verify` proves green | the loop      | every unit, in `development-loop`          |
 | **Milestone**       | End-to-end journeys on the assembled product    | `e2e-testing` | before a release/deploy                    |
 
@@ -92,7 +92,9 @@ List what the tests need that they don't control — network, clock, randomness,
 
 ### 5. Record the strategy
 
-Write it into `specs/NNN-slug/tasks.md`: a short `## Test strategy` section (the command, the layers in play, the shared seams) and each task's `Tests:` line carrying the behavior, layer, and boundary. One place the whole feature reads from.
+Write it into each planned feature's `specs/NNN-slug/tasks.md`: a short `## Test strategy` section (the command, the layers in play, the shared seams) and each task's `Tests:` line carrying the behavior, layer, and boundary. One place the whole feature reads from.
+
+When a whole phase was planned in one run, the **command and shared seams are decided once for the phase** and repeated verbatim into every feature's `tasks.md`; only the per-feature layers and task mapping differ. Never let two features in one phase disagree about what is faked.
 
 ### 6. Hand the strategy to the loop
 

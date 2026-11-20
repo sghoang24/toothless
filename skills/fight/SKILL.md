@@ -50,7 +50,7 @@ You are the coordinator. For each task in `tasks.md`, dispatch the loop's **\_im
 
 - **Explore/`scout`** — codebase reconnaissance and questions.
 - **Spec writers** — in the Roadmap phase, `roadmap` dispatches **one spec writer per phase** (parallel across phases) to write `specs/NNN-slug/spec.md` for that phase's features, from the approved feature rows. The coordinator checks the AC → requirement mapping; it never writes specs inline.
-- **Design subagents** — in the Design phase, `system-design` dispatches an **architect** (system design) and, when the spec has a UI, a **UI designer** (screens + static mocks) with crafted context. They run in parallel where independent; the coordinator reconciles them.
+- **Design subagents** — in the Design phase, `system-design` dispatches **one architect per feature** (parallel in phase scope) and, when a spec has a UI, a **UI designer** (screens + static mocks) with crafted context. It reconciles per feature and across features, then runs one Lavish review for the phase.
 - **Implementer** — one task at a time, test-first, reporting fresh evidence (via `development-loop`).
 - **Tester** — the test strategy for the current feature (via `test-strategy`), settled once in the Plan phase, before the loop; it can run in a fresh thread alongside planning so tests and tasks converge.
 - **Reviewer** — review of a completed change, always in a **fresh session** (`AGENTS.md`).
@@ -70,7 +70,7 @@ Brainstorm -> Roadmap -> Design -> Plan (incl. test-strategy) -> Development (lo
 | Brainstorm  | `brainstorming`                  | `docs/product/PRD.md` exists and is approved (project mode)                                                                                                                                |
 | Roadmap     | `roadmap`                        | `specs/_roadmap.md` + `specs/_state.md` + `specs/_status.md` are agreed (Lavish gate one), and **every feature of every phase has an approved `specs/NNN-slug/spec.md`** (Lavish gate two) |
 | Design      | `system-design` (+ `ui-design`)  | The agreed design is written: `docs/architecture/architecture.md` (+ `docs/design/` when there's a UI), diagrams drawn                                                                     |
-| Plan        | `planning` (+ `test-strategy`)   | `specs/NNN-slug/tasks.md` is agreed, every task traced to acceptance criteria, and the feature's `## Test strategy` is set                                                                 |
+| Plan        | `planning` (+ `test-strategy`)   | `specs/NNN-slug/tasks.md` is agreed for **every** feature of the current phase, every task traced to acceptance criteria, and each feature's `## Test strategy` is set |
 | Development | `development-loop`               | Every task built test-first, verified green, and reviewed clean; the final whole-branch review is clean                                                                                    |
 | Land        | `finishing-a-development-branch` | The MR/PR is raised for the human — or merged on explicit approval — and the worktree cleaned up                                                                                           |
 | Deploy      | `deploy`                         | Human approved the deploy                                                                                                                                                                  |
@@ -81,7 +81,7 @@ Brainstorm -> Roadmap -> Design -> Plan (incl. test-strategy) -> Development (lo
 
 - No roadmap without an approved PRD (via `brainstorming`, project mode).
 - No design and no code without an **approved spec** — `specs/NNN-slug/spec.md` with `status: approved`, whose acceptance criteria the human approved in the Roadmap phase's second Lavish gate. A `status: spec` draft is not an approved spec.
-- No implementation until the design is agreed — that means `docs/architecture/architecture.md` reflects the agreed system design, and `docs/design/` the agreed UI when the spec has one.
+- No implementation until the design is agreed — `docs/architecture/architecture.md` reflects the agreed system design, and `docs/design/` the agreed UI when the spec has one. This gate holds before **code**, not before **planning**: tasks flow from acceptance criteria, so `planning` may run before Design and record the technical calls it has to make as plan calls. When no design is needed, the feature records `design: skipped — <reason>`.
 - No code before an approved task list — `specs/NNN-slug/tasks.md` (via `planning`).
 - A finished branch gets an **MR/PR raised for the human**; **merging requires explicit human approval** (`finishing-a-development-branch`) — exactly like a deploy. Never merge on your own.
 - Deploy requires explicit human approval. Never deploy on your own.

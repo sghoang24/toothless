@@ -1,7 +1,7 @@
 ---
 name: system-design
-description: "You MUST use this AFTER the spec (and its roadmap) are agreed and BEFORE planning and any implementation. The goal is to orchestrate the Design phase: right-size the design, dispatch an architect (plus a UI designer when the spec has a UI) with crafted context, reconcile them, review via Lavish, then write docs/architecture/architecture.md (+ docs/design/) and draw diagrams with archify. You are not allowed to start coding until the design is agreed. Trigger phrases: system design, architecture, design doc, how should we build this, architecture diagram."
-argument-hint: "Point at the agreed spec, e.g. specs/001-auth/2026-11-12-auth.md (+ specs/_roadmap.md)"
+description: "You MUST use this AFTER the spec (and its roadmap) are agreed and BEFORE planning and any implementation. The goal is to orchestrate the Design phase: right-size the design, dispatch an architect (plus a UI designer when a spec has a UI) with crafted context, reconcile them, review via Lavish, then write docs/architecture/architecture.md (+ docs/design/, and a per-feature design.md) and draw diagrams with archify. Designs one feature, or every feature of the current phase in one run, so Phase planning has all its inputs at once. You are not allowed to start coding until the design is agreed. Trigger phrases: system design, architecture, design doc, design the phase, design all features, how should we build this, architecture diagram."
+argument-hint: "Optional: a feature folder (specs/001-auth/) or 'phase'. Defaults to the current phase in specs/_state.md."
 ---
 
 # System Design (Design Phase Orchestrator)
@@ -28,7 +28,23 @@ It sits at **Design** in the workflow: `Brainstorm -> Roadmap -> Design -> Plan 
 
 The system design and the UI design are **one design, agreed together**. The screens depend on the interfaces; whatever data a screen needs must exist in a contract. Neither is agreed until they reconcile.
 
-The design **consumes** the spec (and the feature's place in the roadmap); it does not re-decide scope, requirements, or order. If design work reveals that a requirement is wrong, stop and send it back — a spec change goes through brainstorming (`roadmap` replans if scope shifts). Never quietly redesign around a broken spec.
+The design **consumes** the spec (and the feature's place in the roadmap); it does not re-decide scope, requirements, or order. If design work reveals that a requirement is wrong, stop and send it back — a spec change goes back to `roadmap` (a revision, then gate two). Never quietly redesign around a broken spec.
+
+## One feature or the whole phase
+
+Design runs at one of two scopes, and the phase is the default in the pipeline because `planning` plans the phase in one pass:
+
+- **Feature:** one `spec.md`, one `design.md`, one Lavish review. Use it for a single named feature, a follow-up feature, or a revision that moved an interface.
+- **Phase:** every feature of the current phase, with all its specs approved. Dispatch **one architect per feature, in parallel**, then reconcile across them before the single Lavish review. The point is the **seams between features**: a shared entity, a `make` target, or an interface one feature consumes and another owns must be designed once, by one feature, and referenced by the rest.
+
+Phase scope is still **right-sized per feature** — two features in one phase can be Light and Deep. Scope decides how many are designed together; the tier decides how much is written for each.
+
+Rules for phase scope:
+
+- A feature whose spec is not `status: approved` is **excluded** and reported; never design it from a draft.
+- Design **in phase dependency order**, but reconcile as one set: a later feature may only consume an interface an earlier one defined.
+- Everything a feature needs that another feature owns becomes an explicit **contract** in `docs/architecture/architecture.md` — not an assumption repeated in two `design.md` files.
+- One Lavish review covers the whole phase, sectioned per feature. A reject re-designs **only** the affected feature.
 
 ## Right-size the design (read this first)
 
@@ -52,6 +68,7 @@ See [references/design-depth.md](./references/design-depth.md) for the tiers in 
 ## When to Use
 
 - A spec is agreed (feature mode) and you're about to design _how_ to build it — before `planning` cuts it into tasks.
+- The pipeline reaches Design for a phase: every feature of the current phase has an approved spec — design them **all in one run**, so `planning` can plan the phase in one pass.
 - The change touches more than one component, module, or data store; or introduces an interface other code will depend on.
 - A decision is hard to reverse (schema, API shape, auth model, service boundary) and deserves to be recorded.
 - The spec has a user-facing surface, so the screens need designing before they're built.
@@ -69,7 +86,8 @@ See [references/design-depth.md](./references/design-depth.md) for the tiers in 
 
 ## Core Rules
 
-- **Orchestrate; don't do the design inline.** Dispatch the architect subagent (and, for a UI, the UI designer subagent) with crafted context from [references/architect-prompt.md](./references/architect-prompt.md) and [references/ui-design-prompt.md](./references/ui-design-prompt.md). You own reconciliation, review, and write-up — never the design drafting itself, and never by sharing your session history.
+- **Orchestrate; don't do the design inline.** Dispatch the architect subagent (and, for a UI, the UI designer subagent) with crafted context from [references/architect-prompt.md](./references/architect-prompt.md) and [references/ui-design-prompt.md](./references/ui-design-prompt.md). You own reconciliation, review, and write-up — never the design drafting itself, and never by sharing your session history. In **phase scope**, that is one architect per feature, dispatched in parallel.
+- **Design the seams once.** When several features are designed together, a shared entity, interface, or build target is owned by one feature and referenced by the others through `docs/architecture/architecture.md`. Two features defining the same contract differently is the defect phase scope exists to prevent.
 - **Design from the spec and roadmap, not from the conversation.** Every component, interface, screen, and flow traces to a requirement or a phase goal. If it isn't needed by either, cut it.
 - **Right-size it.** Choose Light / Standard / Deep from the spec's complexity and risk, state the choice, and design to that tier. See [references/design-depth.md](./references/design-depth.md).
 - **Decide the hard-to-reverse things; leave the rest open.** Schema, contracts, and boundaries need a call. Internal naming and file layout do not. Only questions whose answers change what gets built go to the human.
@@ -82,9 +100,13 @@ See [references/design-depth.md](./references/design-depth.md) for the tiers in 
 
 ## Procedure
 
-### 1. Load the spec and its roadmap position, and decide the UI question
+### 1. Load the scope and decide the UI question
 
-Read the approved spec (`specs/NNN-slug/spec.md`, `status: approved`) and its change log, and `specs/_roadmap.md` + `specs/_state.md` for the feature's phase, dependencies, and order. List the requirements the design must make buildable, and the phase/dependency constraints. Read any existing `docs/architecture/architecture.md`, ADRs, and `docs/design/` so you extend, not duplicate. Decide: **does this spec have a user-facing surface?** That answer gates whether the UI designer subagent runs.
+**Feature scope:** read the approved spec (`specs/NNN-slug/spec.md`, `status: approved`) and its change log, and `specs/_roadmap.md` + `specs/_state.md` for the feature's phase, dependencies, and order.
+
+**Phase scope:** read `specs/_state.md` for `current_phase`, the phase's feature rows in `specs/_roadmap.md`, and every feature's `spec.md`. Exclude (and report) any feature whose spec is not `status: approved`.
+
+In both scopes: list the requirements the design must make buildable, and the phase/dependency constraints. Read any existing `docs/architecture/architecture.md`, ADRs, and `docs/design/` so you extend, not duplicate. Decide: **does this scope have a user-facing surface?** That answer gates whether the UI designer runs.
 
 ### 2. Pick the tier
 
@@ -96,15 +118,17 @@ Ask only what the spec and project don't already answer — the questions whose 
 
 ### 4. Dispatch the design subagents
 
-Fill [references/architect-prompt.md](./references/architect-prompt.md) and dispatch the **architect** subagent; it drafts the system design at the chosen tier.
+Batch [references/architect-prompt.md](./references/architect-prompt.md) and dispatch **one architect subagent per feature** — in parallel in phase scope, with the features it depends on already designed (pass the earlier feature's design as `Existing architecture to extend`).
 
-**If the spec has a UI**, also fill [references/ui-design-prompt.md](./references/ui-design-prompt.md) and dispatch the **UI designer** subagent. When the screens and the interfaces can be designed independently, dispatch both **in parallel** — then reconcile. The UI designer uses the `ui-ux-pro-max` skill for the visual direction **if it's installed**, and falls back to plain design reasoning if not; it produces static HTML mocks and no product code.
+**If this scope has a UI**, also fill [references/ui-design-prompt.md](./references/ui-design-prompt.md) and dispatch the **UI designer** subagent. When the screens and the interfaces can be designed independently, dispatch both **in parallel** — then reconcile. The UI designer uses the `ui-ux-pro-max` skill for the visual direction **if it's installed**, and falls back to plain design reasoning if not; it produces static HTML mocks and no product code.
 
 Each subagent gets crafted context — the spec, the roadmap position, the existing design, and the answered decisions — never your session history.
 
 ### 5. Reconcile
 
-Before reviewing with the user, check the two drafts against each other: does every screen's data need map to an interface the architect defined? Feed any gap back into the system design, and any interface the UI can't use back into the UI. Fix the seam yourself; only escalate a question to the human if a wrong guess changes what gets built.
+Before reviewing with the user, check the drafts against each other: does every screen's data need map to an interface the architect defined? Feed any gap back into the system design, and any interface the UI can't use back into the UI. Fix the seam yourself; only escalate a question to the human if a wrong guess changes what gets built.
+
+In **phase scope** there is a second reconciliation, across features: one owner per shared entity, interface, and build target; no feature consuming something a later feature is supposed to define; no contract defined twice with different shapes. This is the check that makes a phase design worth doing in one pass.
 
 ### 6. Mock-review with Lavish (always)
 
@@ -124,11 +148,11 @@ Once the design is stable, draw its views with the **`archify`** skill — e.g. 
 
 Write the agreed system design to `docs/architecture/architecture.md` (merged with any existing content, not overwritten). When there's a UI, write the agreed screens, flows, states, and design system to `docs/design/`. Record each genuinely hard-to-reverse decision as an ADR under `docs/architecture/adr/` per `AGENTS.md`. Link the diagram artifacts.
 
-Also write the feature's short `specs/NNN-slug/design.md` — the shape of **this** feature's solution (data model, interfaces, flows, screens it touches), linking to `docs/architecture/architecture.md` rather than restating it, or `design: skipped — <reason>` when the spec needs no design. `planning` and the loop read that file; without it the feature folder has a dangling reference.
+Also write each designed feature's short `specs/NNN-slug/design.md` — the shape of **that** feature's solution (data model, interfaces, flows, screens it touches), linking to `docs/architecture/architecture.md` rather than restating it, or `design: skipped — <reason>` when the spec needs no design. `planning` and the loop read that file when it exists; without it they plan from the acceptance criteria and record the technical calls as plan calls, so a missing one costs precision, not a stop.
 
 ### 9. Gate
 
-Stop at the design. Hand off to Plan only after `docs/architecture/architecture.md` (and `docs/design/` for a UI) reflect the agreed design, the diagrams are drawn, and the feature's `specs/NNN-slug/design.md` is written — then `planning` cuts it into tasks. Update the feature's `specs/NNN-slug/status.md` (`next`, `notes`).
+Stop at the design. Hand off to Plan only after `docs/architecture/architecture.md` (and `docs/design/` for a UI) reflect the agreed design, the diagrams are drawn, and **every feature in scope** has its `specs/NNN-slug/design.md` (or a recorded skip) — then `planning` cuts them into tasks, whole phase at once. Update each feature's `specs/NNN-slug/status.md` (`next`, `notes`).
 
 ## Repository Layout
 
@@ -175,22 +199,28 @@ docs/
 | "I'll put the logic in the controller, it's faster" | `AGENTS.md`: business logic lives in the service layer. The design must reflect that.                                                 |
 | "I'll overwrite docs/architecture/architecture.md"  | Extend it. Merge the new design with what's there.                                                                                    |
 | "I'll draw every diagram type to be safe"           | Draw the views this design needs at its tier — not one of each.                                                                       |
+| "I'll design one feature and let the phase wait"     | Phase scope designs them together — one pass, one review, and the cross-feature seams checked once.                                   |
+| "Two features can each define the shared contract"  | One owner per entity, interface, and build target. Two definitions of one contract is the defect phase scope exists to catch.         |
+| "It's a phase, so everything is Deep"                | Scope decides how many; the tier decides how much. A Light feature in a Deep phase stays Light.                                        |
+| "A feature has no design yet, so planning must wait"  | `planning` can cut tasks from the criteria alone. Design buys precision, not permission.                                            |
+| "I'll design the feature whose spec is still a draft"| Exclude it and report it. A draft spec has no approved meaning to design against.                                                     |
 
 ## Completion Check
 
 You are done when ALL are true:
 
-- [ ] Design traces to the approved spec (`specs/NNN-slug/spec.md`, `status: approved`) and its roadmap position; no invented scope or order. `planning` runs after the design is agreed, not before.
-- [ ] A tier (Light / Standard / Deep) is chosen and stated, and the design matches it — nothing over-built.
+- [ ] Design traces to the approved spec (`specs/NNN-slug/spec.md`, `status: approved`) and its roadmap position; no invented scope or order.
+- [ ] The scope is stated (one feature or the current phase); in phase scope, every feature in it was designed together, and any excluded feature was reported with the reason.
+- [ ] A tier (Light / Standard / Deep) is chosen **per feature** and stated, and each design matches it — nothing over-built.
 - [ ] The architect subagent was dispatched with crafted context (not this session's history); the UI designer too when the spec has a UI.
 - [ ] If there's no UI, the UI designer was skipped and that was stated.
-- [ ] The two designs were reconciled: every screen's data need maps to an interface.
+- [ ] The two designs were reconciled: every screen's data need maps to an interface. In phase scope, also reconciled **across** features: one owner per shared entity, interface, and build target.
 - [ ] Business logic is placed in the service layer, per `AGENTS.md`.
 - [ ] The design was shown as a Lavish artifact (system design + a UI mock when there's a UI) and the user's feedback was folded in (the poll was kept alive until they answered, and you replied so the board isn't stuck on `Working`).
 - [ ] Diagrams for the needed views are drawn with `archify` and linked.
 - [ ] `docs/architecture/architecture.md` updated (merged, not overwritten); `docs/design/` written for a UI; hard-to-reverse decisions recorded as ADRs.
-- [ ] The feature's `specs/NNN-slug/design.md` written (or `design: skipped — <reason>`), linking to `architecture.md` instead of restating it.
+- [ ] **Every feature in scope** has its `specs/NNN-slug/design.md` written (or `design: skipped — <reason>`), linking to `architecture.md` instead of restating it.
 - [ ] No product code was written; the UI mock is static.
-- [ ] The feature's `specs/NNN-slug/status.md` updated.
+- [ ] **Every feature in scope** has its `specs/NNN-slug/status.md` updated.
 
 If any box is unchecked, keep designing — do not start planning or building.
