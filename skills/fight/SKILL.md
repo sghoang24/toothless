@@ -70,9 +70,9 @@ Brainstorm -> Roadmap -> Design -> Plan (incl. test-strategy) -> Development (lo
 | Brainstorm  | `brainstorming`                  | `docs/product/PRD.md` exists and is approved (project mode)                                                                                                                                |
 | Roadmap     | `roadmap`                        | `specs/_roadmap.md` + `specs/_state.md` + `specs/_status.md` are agreed (Lavish gate one), and **every feature of every phase has an approved `specs/NNN-slug/spec.md`** (Lavish gate two) |
 | Design      | `system-design` (+ `ui-design`)  | The agreed design is written: `docs/architecture/architecture.md` (+ `docs/design/` when there's a UI), diagrams drawn                                                                     |
-| Plan        | `planning` (+ `test-strategy`)   | `specs/NNN-slug/tasks.md` is agreed for **every** feature of the current phase, every task traced to acceptance criteria, and each feature's `## Test strategy` is set |
+| Plan        | `planning` (+ `test-strategy`)   | `specs/NNN-slug/tasks.md` is agreed for **every** feature of the current phase, every task traced to acceptance criteria, and each feature's `## Test strategy` is set                     |
 | Development | `development-loop`               | Every task built test-first, verified green, and reviewed clean; the final whole-branch review is clean                                                                                    |
-| Land        | `finishing-a-development-branch` | The MR/PR is raised for the human — or merged on explicit approval — and the worktree cleaned up                                                                                           |
+| Land        | `finishing-a-development-branch` | The MR/PR is raised for the human — or merged on explicit approval — the worktree cleaned up, and, when it was the phase's last feature, **the phase closed** and the next one opened      |
 | Deploy      | `deploy`                         | Human approved the deploy                                                                                                                                                                  |
 
 **The Development phase is the loop `implement -> verify -> review`, run per unit — usually one task, or a batch of small same-shape tasks.** Its single source of truth is `development-loop` — the cycle cap, the transitions, the subagent contracts, and the final whole-branch review live there, not here. Inside the loop, `implement` builds the unit test-first following the feature's strategy (settled once in Plan by `test-strategy`), `verify` holds the fresh-evidence gate, and `review` judges the diff in a fresh session. `test-strategy` itself is **not** a loop step — it runs once per feature, inside Plan.
@@ -94,7 +94,7 @@ Dispatching, sequencing, and "what's next" are your calls — do them and say so
 
 The default is **stop at every phase boundary**: verify the phase Targets, report, and wait for the human before starting the next phase. Widen only when the user asks.
 
-- **Default:** one phase at a time. At the boundary, walk the phase's exit criteria and targets in `specs/_roadmap.md` → report what's true → wait.
+- **Default:** one phase at a time. At the boundary, `finishing-a-development-branch` closes the phase (exit criteria + your explicit release-gate approval), then `system-design` opens the next one. Walk the exit criteria in `specs/_roadmap.md` → report what's true → wait.
 - **Widen (opt-in):** "run to the end of P1", "chạy liền P1→P2", "run until blocked". The user names the stop condition.
 - **Always stop** on: a red gate, a Critical review finding, the loop cap, a merge, or a deploy.
 

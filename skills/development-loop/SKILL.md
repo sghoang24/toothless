@@ -87,7 +87,7 @@ This does not replace `dispatching-parallel-agents`: a batch is **one** agent on
 
 ### 1. Load the feature and its tasks
 
-Read `specs/_state.md` (current phase/feature) and the feature's `specs/NNN-slug/status.md` (`status`, `current_unit`, `cycle`, `cycle_cap`, `next`, `notes`). Read `specs/NNN-slug/tasks.md` — the task list, each task's `Verify:` line, and the feature's `## Test strategy` section. Read the spec (`specs/NNN-slug/spec.md`, `status: approved`) and the parts of `docs/architecture/architecture.md` the tasks touch.
+Read `specs/_state.md` (current phase/feature) and the feature's `specs/NNN-slug/status.md` (`status`, `current_unit`, `cycle`, `cycle_cap`, `next`, `notes`). If that file is missing, create it from the feature's `_roadmap.md` row before starting, and say so. Read `specs/NNN-slug/tasks.md` — the task list, each task's `Verify:` line, and the feature's `## Test strategy` section. Read the spec (`specs/NNN-slug/spec.md`, `status: approved`) and the parts of `docs/architecture/architecture.md` the tasks touch.
 
 If a task has no outcome or nothing to verify against, it is not sized: send it back to `planning` before building anything.
 

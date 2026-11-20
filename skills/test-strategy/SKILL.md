@@ -38,11 +38,11 @@ The layer is chosen by **what the test must prove**, not by habit. The more of t
 
 ## When it runs vs. the loop
 
-| Scope               | What runs                                       | Owned by      | When                                       |
-| ------------------- | ----------------------------------------------- | ------------- | ------------------------------------------ |
+| Scope               | What runs                                              | Owned by      | When                                       |
+| ------------------- | ------------------------------------------------------ | ------------- | ------------------------------------------ |
 | **Plan phase**      | The phase's (or feature's) unit + integration strategy | this skill    | once, after tasks are cut, before the loop |
-| **Loop (per unit)** | `implement` writes tests; `verify` proves green | the loop      | every unit, in `development-loop`          |
-| **Milestone**       | End-to-end journeys on the assembled product    | `e2e-testing` | before a release/deploy                    |
+| **Loop (per unit)** | `implement` writes tests; `verify` proves green        | the loop      | every unit, in `development-loop`          |
+| **Milestone**       | End-to-end journeys on the assembled product           | `e2e-testing` | before a release/deploy                    |
 
 This skill is **set up once, in Plan** — it is not a loop step. The `development-loop` only runs `implement -> verify -> review`; the strategy they follow was settled here. Do not write e2e tests per feature — they're slow, brittle, and belong to the milestone gate. A feature proves its behaviors at the unit/integration layer; the assembled system is proven once, at the milestone.
 
