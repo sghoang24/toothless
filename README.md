@@ -20,15 +20,15 @@ Brainstorm -> Roadmap -> Design -> Plan -> Development (loop) -> Deploy
 
 Every change walks this pipeline. The **gates** between phases are hard — nothing skips one:
 
-| Gate             | Rule                                                                                                                                                                  |
-| ---------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Spec → any code  | No code without an **approved spec** (newest dated file in `specs/NNN-slug/`, or the PRD for a new project).                                                          |
-| Roadmap → Design | The feature is placed in a phase and ordered (`specs/_roadmap.md`, `specs/_state.md`).                                                                                |
-| Design → Plan    | No planning until the **design is agreed** (`docs/architecture/architecture.md`, plus `docs/design/` for a UI).                                                       |
-| Plan → Implement | No code before an **approved task list** (`specs/NNN-slug/tasks.md`) and its `## Test strategy`.                                                                      |
-| Loop → next unit | The loop cap is **3 cycles per unit** (a task, or a batch of small same-shape tasks); each cycle must change the approach, and after the third, STOP and ask a human. |
-| Land             | A finished branch gets an **MR/PR raised for the human**; **merging needs explicit human approval** — never merge on your own.                                        |
-| Deploy           | Requires **explicit human approval**. Never deploy on your own.                                                                                                       |
+| Gate             | Rule                                                                                                                                                                        |
+| ---------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| PRD → Roadmap    | No roadmap without an **approved PRD** (`docs/product/PRD.md`) and its `FR-n` / `NFR-n` IDs.                                                                                |
+| Roadmap → Design | Two Lavish reviews passed: the **slicing** (`specs/_roadmap.md`, `specs/_state.md`) and the **specs** — every feature has `specs/NNN-slug/spec.md` with `status: approved`. |
+| Design → Plan    | No planning until the **design is agreed** (`docs/architecture/architecture.md`, plus `docs/design/` for a UI).                                                             |
+| Plan → Implement | No code before an **approved task list** (`specs/NNN-slug/tasks.md`) and its `## Test strategy`.                                                                            |
+| Loop → next unit | The loop cap is **3 cycles per unit** (a task, or a batch of small same-shape tasks); each cycle must change the approach, and after the third, STOP and ask a human.       |
+| Land             | A finished branch gets an **MR/PR raised for the human**; **merging needs explicit human approval** — never merge on your own.                                              |
+| Deploy           | Requires **explicit human approval**. Never deploy on your own.                                                                                                             |
 
 ## Install
 
@@ -49,8 +49,9 @@ Add `-g` to install for all your projects instead of just the current one. Skill
 1. Install the skills (above), or open your agent CLI in a clone of this repo.
 2. Start fight mode: run `/fight`, or just say **"fight mode"** — or use any skill directly.
 3. State what you want to build. The coordinator takes it from there — it will brainstorm the
-   spec, slice the roadmap, design, plan the tasks (and the test strategy), then run the
-   development loop task by task, stopping at each phase boundary for your sign-off.
+   PRD, slice and spec the roadmap (two Lavish reviews), design, plan the tasks (and the test
+   strategy), then run the development loop task by task, stopping at each phase boundary for your
+   sign-off.
 
 `commands/fight.md` is the thin `/fight` entry point; the real rules live in the
 `fight` skill.
@@ -60,19 +61,23 @@ Add `-g` to install for all your projects instead of just the current one. Skill
 If you don't want fight mode to drive, call the skills yourself **in this order** — each one
 consumes the previous one's artifact:
 
-| #   | Skill                            | What it gives you                                                    |
-| --- | -------------------------------- | -------------------------------------------------------------------- |
-| 1   | `brainstorming`                  | The agreed **spec** (`specs/NNN-slug/`) or PRD                       |
-| 2   | `roadmap`                        | **Features** in **phases** + `specs/` set up                         |
-| 3   | `system-design` (+ `ui-design`)  | The agreed **design** (`docs/architecture/`, `docs/design/`)         |
-| 4   | `planning` (+ `test-strategy`)   | The **task list** with its test strategy (`specs/NNN-slug/tasks.md`) |
-| 5   | `development-loop`               | The tasks **built**, verified, and reviewed, one unit at a time      |
-| 6   | `finishing-a-development-branch` | The **MR/PR** raised for you to review                               |
-| 7   | `deploy (optional)`              | The proven candidate **in production** (on your approval)            |
+| #   | Skill                            | What it gives you                                                                                         |
+| --- | -------------------------------- | --------------------------------------------------------------------------------------------------------- |
+| 1   | `brainstorming`                  | The approved **PRD** (`docs/product/PRD.md`)                                                              |
+| 2   | `roadmap`                        | **Features** in **phases**, `specs/` set up, and an approved **`spec.md` per feature** (two Lavish gates) |
+| 3   | `system-design` (+ `ui-design`)  | The agreed **design** (`docs/architecture/`, `docs/design/`, `specs/NNN-slug/design.md`)                  |
+| 4   | `planning` (+ `test-strategy`)   | The **task list** with its test strategy (`specs/NNN-slug/tasks.md`)                                      |
+| 5   | `development-loop`               | The tasks **built**, verified, and reviewed, one unit at a time                                           |
+| 6   | `finishing-a-development-branch` | The **MR/PR** raised for you to review                                                                    |
+| 7   | `deploy (optional)`              | The proven candidate **in production** (on your approval)                                                 |
 
-**Enter anywhere the artifact already exists.** Already have a spec? Start at step 2. Already have
-a task list? Start at step 5. Each skill checks its inputs and sends you back a step if one is
-missing — that's the point, not an obstacle.
+**Enter anywhere the artifact already exists.** Already have a PRD? Start at step 2. Already have
+an approved spec and a task list? Start at step 5. Each skill checks its inputs and sends you back
+a step if one is missing — that's the point, not an obstacle.
+
+Writing a spec for a single feature **without** a roadmap is the one place `brainstorming` feature
+mode is the right call: it writes the same `specs/NNN-slug/spec.md` shape, from a conversation
+instead of the approved feature rows.
 
 Two things change the shape of that list: `e2e-testing` runs before step 7 at a milestone, and
 **`debugging`, `security-and-hardening`, `git-worktrees`, and `dispatching-parallel-agents` are
@@ -97,12 +102,17 @@ directly, or let fight drive — the skills don't depend on it.
 
 - **brainstorming** — turns a vague request into an agreed, testable document. Asks the questions
   that change what gets built, explores the codebase before proposing, lays out real
-  alternatives. Project mode produces `docs/product/PRD.md`; feature mode an agreed spec revision
-  in `specs/NNN-slug/`.
+  alternatives. Project mode produces `docs/product/PRD.md`. Feature mode writes
+  `specs/NNN-slug/spec.md` and is for **standalone work** only; its **revision mode** interviews you
+  and returns a change brief — inside the pipeline the roadmap owns feature specs.
 - **roadmap** — slices the approved PRD into **features**, groups them into **phases**, orders
-  them by dependency, and sets up `specs/`. Output: `specs/_roadmap.md` + `specs/_state.md`, plus
-  `status.md` folders for the current phase's features. Also **replans** as phases close or scope
-  shifts.
+  them by dependency, and sets up `specs/`. Then it writes the **spec for every feature of every
+  phase** through one dispatched spec-writer subagent per phase, and gates both halves with
+  **Lavish** reviews: first the slicing, then the acceptance criteria. Output: `specs/_roadmap.md`,
+  `specs/_state.md`, `specs/_status.md`, `specs/NNN-slug/spec.md` for every feature, and
+  `status.md` for the current phase's features. It is the **only writer of `spec.md`**, and also
+  **replans** as phases close or scope shifts — re-validating the next phase's specs from their
+  change logs.
 - **system-design** — the **Design phase orchestrator**. It right-sizes the design
   (Light / Standard / Deep), dispatches the design work to fresh subagents, reconciles them,
   runs the Lavish review, and writes the agreed design. Output:
@@ -193,14 +203,17 @@ their results flow back through the normal loop; standalone, they still hold the
 ## How a change flows end to end
 
 1. **Brainstorm.** You describe what you want. The agent asks the few questions whose answers
-   change what gets built, explores the code, and proposes the approaches. For a whole project it
-   agrees a PRD (`docs/product/PRD.md`); for one feature an approved revision in `specs/NNN-slug/`.
+   change what gets built, explores the code, and proposes the approaches.
+   → an approved PRD at `docs/product/PRD.md`.
 2. **Roadmap.** The PRD is sliced into **features**, grouped into **phases**, ordered by
-   dependency, and `specs/` is set up. → `specs/_roadmap.md` + `specs/_state.md`.
+   dependency, and you approve the slicing through a **Lavish** review. Then one **spec writer**
+   per phase writes `specs/NNN-slug/spec.md` for every feature, with testable acceptance criteria
+   and an `AC → requirement mapping`; you approve those through a second Lavish review.
+   → `specs/_roadmap.md`, `specs/_state.md`, `specs/_status.md`, and an approved `spec.md` per feature.
 3. **Design.** `system-design` picks a tier, dispatches an **architect** subagent (and a **UI
    designer** when the spec has a UI), reconciles them, shows the result via **Lavish**, then
-   writes `docs/architecture/architecture.md` (+ `docs/design/`) and draws diagrams with
-   **archify**.
+   writes `docs/architecture/architecture.md` (+ `docs/design/`, plus the feature's short
+   `specs/NNN-slug/design.md`) and draws diagrams with **archify**.
 4. **Plan.** `planning` turns the feature's spec and agreed design into an ordered list of
    PR-sized tasks, each traced to acceptance criteria with its own tests. As the last step of this
    phase, `test-strategy` settles the feature's `## Test strategy` (command, layers, seams).
@@ -263,7 +276,8 @@ runs (the first spec bootstraps what's missing).
     ├── README.md          # skills catalogue
     ├── fight/        #   spine + coordinator
     ├── brainstorming/     #   spec / PRD
-    ├── roadmap/           #   features + phases (+ references/templates.md)
+    ├── roadmap/           #   features + phases + feature specs
+    │                      #     (+ references/spec-writer-prompt.md, templates.md)
     ├── system-design/     #   design orchestrator (+ references/architect-prompt.md,
     │                      #     ui-design-prompt.md, design-depth.md, question-bank.md,
     │                      #     architecture-template.md)
@@ -293,9 +307,9 @@ specs/
 ├── _state.md              # current phase + feature (owned by roadmap)
 ├── _status.md             # landed-PR ledger: PR / phase / feature / task (owned by roadmap)
 └── NNN-slug/              # one feature
-    ├── status.md          # per-feature cursor: status / cycle / next
-    ├── YYYY-MM-DD-*.md    # dated spec revisions
-    ├── design.md          # optional: shape of this feature's solution
+    ├── spec.md            # requirements + AC-n (roadmap writes; `status: approved`)
+    ├── status.md          # per-feature cursor: status / cycle / next (current phase only)
+    ├── design.md          # shape of this feature's solution (system-design)
     ├── tasks.md           # the feature's PR-sized tasks
     └── review.md          # review findings (owned by the loop's `review`)
 docs/

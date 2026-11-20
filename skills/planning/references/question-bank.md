@@ -27,12 +27,12 @@ question at a time** and wait for the answer before the next — never a batch.
 
 ## Spec revisions
 
-- Which existing specs changed (a newer dated file), and what does its change log mark NEW/CHANGED?
+- Which existing specs changed (a newer `Revision:` in `spec.md`), and what does its change log mark NEW/CHANGED?
 - Is the change additive (new features) or does it supersede work already shipped?
 - Which requirements are UNCHANGED (confirm nothing here needs re-planning)?
 - Any unbuilt tasks from the old revision this change replaces (to strike through)?
 - Which new phase should the NEW/CHANGED delta land in — a fresh one, or a still-open future phase?
-- Does the revision justify a new spec folder instead (a different requirement), or stay a revision?
+- Does the revision justify a new feature instead (a different requirement), or stay a revision of this one?
 
 ## Risk
 

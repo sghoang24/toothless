@@ -9,8 +9,8 @@ owns features and phases; this file owns the tasks inside one feature.
 ```markdown
 # Tasks — <feature name> (NNN-slug)
 
-Spec: <newest dated revision>, e.g. 2026-11-17-auth.md
-Design: docs/architecture/architecture.md (+ docs/design/ when there's a UI)
+Spec: specs/NNN-slug/spec.md — Revision <YYYY-MM-DD> (`status: approved`)
+Design: specs/NNN-slug/design.md → docs/architecture/architecture.md (+ docs/design/ when there's a UI)
 Status: planned
 
 ## Tasks

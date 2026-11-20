@@ -20,7 +20,7 @@ Review the change from {BASE_SHA} to {HEAD_SHA} on this branch.
 
 Context you must judge against:
 - Task and its Verify line: {TASK_AND_VERIFY}
-- Requirements (newest spec revision): {SPEC_PATH}
+- Requirements (`specs/NNN-slug/spec.md`, `status: approved`): {SPEC_PATH}
 - Design (components, boundaries, interfaces): {ARCHITECTURE_PATH}
 - Conventions: {AGENTS_MD_PATH}
 

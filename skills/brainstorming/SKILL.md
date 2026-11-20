@@ -1,6 +1,6 @@
 ---
 name: brainstorming
-description: "Use this before building anything new or changing behavior whenever the request is vague, underspecified, or has more than one reasonable reading: a new product or project, a feature, a component, a behavior change. Turns the request into an agreed, testable scope through one-question-at-a-time conversation, a comparison of approaches, and a written design that the user approves before any code exists. Project mode produces docs/product/PRD.md (suggested next step: roadmap); feature mode produces a spec in specs/NNN-slug/ (suggested next step: system-design, then planning). Works on its own: the next step is offered, never forced. Also use to sharpen a raw idea or stress-test a plan (triggers: ideate, refine this idea, stress-test my plan). Skip for pure questions, explaining existing code, and fully specified trivial fixes."
+description: "Use this before building anything new or changing behavior whenever the request is vague, underspecified, or has more than one reasonable reading: a new product or project, a feature, a component, a behavior change. Turns the request into an agreed, testable scope through one-question-at-a-time conversation, a comparison of approaches, and a written design that the user approves before any code exists. Project mode produces docs/product/PRD.md (suggested next step: roadmap). Feature mode writes a feature spec in specs/NNN-slug/ and is the path when there is no roadmap to derive from — inside the pipeline, `roadmap` dispatches the spec writer for every feature, so do not call this skill per feature there. Works on its own: the next step is offered, never forced. Also use to sharpen a raw idea or stress-test a plan (triggers: ideate, refine this idea, stress-test my plan). Skip for pure questions, explaining existing code, and fully specified trivial fixes."
 argument-hint: "Describe what you want to build or change (one sentence is enough)."
 ---
 
@@ -14,18 +14,21 @@ This skill is the entry point of the engineering workflow. Workflow position: us
 
 ## Step 0: Pick the mode
 
-| Mode             | When                                                                                                                  | Output                             | Suggested next               |
-| ---------------- | --------------------------------------------------------------------------------------------------------------------- | ---------------------------------- | ---------------------------- |
-| **Project**      | No `docs/product/PRD.md` yet, or the request is a whole product/system, or a new capability spanning several features | `docs/product/PRD.md`              | `roadmap`                    |
-| **Feature**      | A PRD exists and the request is one feature or change                                                                 | `specs/NNN-slug/<date>-<topic>.md` | `system-design` → `planning` |
-| **Small change** | Touches no public interface and no data model, fits in one implement loop                                             | A short design in chat             | `planning`                   |
+| Mode             | When                                                                                                                  | Output                     | Suggested next               |
+| ---------------- | --------------------------------------------------------------------------------------------------------------------- | -------------------------- | ---------------------------- |
+| **Project**      | No `docs/product/PRD.md` yet, or the request is a whole product/system, or a new capability spanning several features | `docs/product/PRD.md`      | `roadmap`                    |
+| **Feature**      | No roadmap pipeline (standalone), and the request is one feature or change                                            | `specs/NNN-slug/spec.md`   | `system-design` → `planning` |
+| **Revision**     | A roadmap pipeline exists and an approved feature's spec must change                                                  | A **change brief** in chat | `roadmap` (Revise mode)      |
+| **Small change** | Touches no public interface and no data model, fits in one implement loop                                             | A short design in chat     | `planning`                   |
 
 If it is unclear, state which mode you chose and why as a one-line proposal, then continue. Do not ask the user to pick a mode.
 
 Mode rules that prevent mix-ups:
 
-- **Project mode never creates `specs/NNN-slug/` folders.** The `roadmap` skill creates them after slicing the PRD into features.
-- **Feature mode** reuses `specs/NNN-slug/` if `roadmap` already created it (a `status.md` is there). Otherwise it creates the folder with the next free number.
+- **In the pipeline, feature specs belong to `roadmap`.** When `specs/_roadmap.md` exists and defines the feature, do not write its spec here: `roadmap` dispatches a spec writer for every phase's features, and it is the only writer of `spec.md`. Feature mode here is for standalone use (no roadmap).
+- **Revision mode writes no file.** Interview the user — what changes, why, what the new acceptance criteria are — and hand back a change brief for `roadmap`'s Revise mode to apply, bump, and gate. Two writers means two formats; that is how a spec ends up with a `status.md` frontmatter and no `Revision:` line.
+- **Project mode never creates `specs/NNN-slug/` folders.** The `roadmap` skill creates them after slicing the PRD into features, and writes their specs.
+- **Feature mode (standalone)** reuses `specs/NNN-slug/` if it already exists; otherwise it creates the folder with the next free number. The spec file is `specs/NNN-slug/spec.md` with a `Revision:` line — the same file and shape `roadmap` writes.
 - If the feature is already in `_roadmap.md` and the PRD already makes it clear, say so and offer to go straight to `system-design` (then `planning`).
 
 ## Standalone use
@@ -94,7 +97,9 @@ Write a document a talented builder could plan from without going back to the us
 
 **Project mode → PRD** (`docs/product/PRD.md`): purpose, goals, non-goals, anti-goals, users and scenarios, functional requirements with IDs (`FR-1`...), non-functional requirements (`NFR-1`...), constraints and assumptions, risks and open questions, success metrics. IDs matter because `roadmap` maps features to them and checks coverage later. If a PRD exists, extend it and add a revision-log entry; never overwrite or delete content without asking.
 
-**Feature mode → spec** (`specs/NNN-slug/YYYY-MM-DD-<topic>.md`): intent and why, which PRD requirements it covers, goals/non-goals, approaches considered, decisions as the user made them, your calls (marked), **testable acceptance criteria**, risks and open questions, what is left to the builder. Each revision is a new dated file (add `-r2` for a second revision on the same day), a complete stand-alone document with a change log at the top. Never overwrite an old revision.
+**Feature mode → spec** (`specs/NNN-slug/spec.md`, standalone use only): a `Revision:` line, intent and why, which PRD requirements it covers, goals/non-goals, approaches considered, decisions as the user made them, your calls (marked), **testable acceptance criteria**, an `AC → requirement mapping` table, risks and open questions, what is left to the builder. Each revision keeps the same `spec.md` path: bump the `Revision:` line and add a change log at the top, and keep the body a complete stand-alone document. Never delete an earlier revision's content without asking; the revision log is the audit trail.
+
+**Revision mode → change brief** (no file): the interview's output is a brief for `roadmap`'s Revise mode — what changes and why, the new or changed acceptance criteria as Given/When/Then, which existing `AC-n` each one supersedes, whether an interface, data model, or screen moves (so the design delta is known), and anything still open. Name the affected feature (`NNN-slug`) and state whether it has shipped: `todo`/`doing` → a spec revision; `done` → a follow-up feature. Do not write `spec.md`; do not invent a dated spec file.
 
 **Small change:** the same points in a line or two each, shown in chat, no builder check.
 
@@ -127,7 +132,7 @@ document as that builder yourself.
 <HARD-GATE>
 Nothing is built until the user approves the written design (PRD, spec, or short design).
 
-Approval means an explicit yes to the document you showed, not "sounds good" to the idea. If they ask for changes, revise and ask again; for features that means a new dated revision.
+Approval means an explicit yes to the document you showed, not "sounds good" to the idea. If they ask for changes, revise and ask again; for a feature spec that means a new revision (bump `Revision:`, add a change-log entry).
 
 Building includes writing product code, scaffolding, installing dependencies, creating projects, and invoking an implementation skill. Reading and exploring are fine. If the user opted out of questions, this skill and its gate are done. A spike they said yes to may be built, stays labeled throwaway, and keeping it is a new request that returns to this gate.
 </HARD-GATE>
@@ -137,8 +142,24 @@ Building includes writing product code, scaffolding, installing dependencies, cr
 After approval:
 
 1. If `specs/_state.md` or the feature's `status.md` exists, update it (`next: design` for features). If not, skip.
-2. **In the pipeline:** project mode → invoke `roadmap`; feature mode → invoke `system-design` (which hands off to `planning`); small change → invoke `planning` directly. Invoke only that skill, and never an implementation skill from here.
+2. **In the pipeline:** project mode → invoke `roadmap`; revision mode → hand the change brief to `roadmap`'s Revise mode (never write the spec yourself); feature mode (standalone) → offer `system-design` (which hands off to `planning`); small change → invoke `planning` directly. Invoke only that skill, and never an implementation skill from here.
 3. **Standalone, or the next skill is not installed:** do not invoke anything. Say in one line what the natural next step is ("Next would be `roadmap` to slice this into phases; want me to run it?") and stop. If they say no or want to build by hand, the approved document is the deliverable.
+
+## Completion Check
+
+Done when ALL are true:
+
+- [ ] The mode was picked and stated (project / feature / revision / small change).
+- [ ] The codebase, the PRD, and anything they pointed at were read before the first question.
+- [ ] Approaches were laid out in their own message with a recommendation, before anything was written up.
+- [ ] The document is **written to disk**, not just described in chat: `docs/product/PRD.md` (project) or `specs/NNN-slug/spec.md` (feature, standalone). **Revision mode is the exception**: it produces a change brief, and `roadmap` writes the file.
+- [ ] Requirements carry IDs (`FR-n` / `NFR-n`) and every acceptance criterion (`AC-n`) is testable by someone who has not read the conversation; a revision names which `AC-n` it supersedes.
+- [ ] The user gave an **explicit yes** to the document you showed — not to the idea, and not to a summary of it. (Revision mode: the brief is ready, and `roadmap`'s gate two is where approval happens.)
+- [ ] The builder check ran (project mode) and its "theirs" pile was answered and folded back in.
+- [ ] `specs/_state.md` / the feature's `status.md` updated when they already exist.
+- [ ] Exactly one handoff: the next skill invoked (pipeline) or named in one line (standalone). No implementation skill was invoked.
+
+An approval you inferred, or a document still living only in the chat, is not completion. If any box is unchecked, keep going.
 
 ## Red Flags
 

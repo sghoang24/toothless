@@ -16,21 +16,23 @@ What this skill does **not** do: group features into phases (that is `roadmap`),
 
 Read, in parallel:
 
-- the feature folder: `status.md`, the **current spec** (the newest dated file `YYYY-MM-DD-*.md` if any exist, otherwise `spec.md`), `tasks.md`, `review.md` and any `design.md` if present
+- the feature folder: `status.md`, `spec.md` (the current spec — `status: approved` required), `tasks.md`, `review.md` and any `design.md` if present
 - `docs/design/` for the agreed UI, `docs/architecture/architecture.md` for the system design and relevant ADRs; `AGENTS.md` (PR size, branch naming, worktree flow); the code the feature touches
 - `specs/_state.md` for `current_feature`, when no feature was named
 
 Pick the mode:
 
-| Mode                     | When                                                                   | What you do                             |
-| ------------------------ | ---------------------------------------------------------------------- | --------------------------------------- |
-| **First plan**           | No `tasks.md`                                                          | Full task list                          |
-| **Revision delta**       | The current spec is newer than the revision the tasks were written for | Plan only NEW/CHANGED requirements      |
-| **Re-entry from review** | `review.md` says the task list was wrong or incomplete                 | Fix the list; never redo finished tasks |
+| Mode                     | When                                                                     | What you do                             |
+| ------------------------ | ------------------------------------------------------------------------ | --------------------------------------- |
+| **First plan**           | No `tasks.md`                                                            | Full task list                          |
+| **Revision delta**       | `spec.md`'s `revision` is newer than the one the tasks were planned from | Plan only NEW/CHANGED requirements      |
+| **Re-entry from review** | `review.md` says the task list was wrong or incomplete                   | Fix the list; never redo finished tasks |
 
 ## Preconditions (route back, do not improvise)
 
-- No approved spec with testable acceptance criteria → `brainstorming` (feature mode).
+- No `specs/NNN-slug/spec.md`, or its frontmatter reads `status: spec` → gate two has not passed. Send it back to `roadmap` (which re-dispatches the spec writer and re-runs its Lavish review). Do not plan against an unapproved spec.
+- An approved spec but no testable acceptance criteria → the same route back to `roadmap`.
+- Standalone with no roadmap (no `specs/_state.md`): a spec written by `brainstorming` feature mode is acceptable input.
 - A design is needed but missing (new interface, data model change, UI) → `system-design`. If the feature records "design: skipped" with a reason, or the design is not needed at all, continue.
 - If this project has no design step at all (standalone use), make the smallest technical calls you need, and mark each as a **plan call** in `tasks.md` for the user to check.
 
@@ -71,17 +73,19 @@ With the tasks cut, invoke `test-strategy` to fill the feature's `## Test strate
 
 ### 5. Handle revisions (delta only)
 
-When the current spec is newer than what the tasks were planned from, read its change log (or diff it against the previous dated file if there is none). Then:
+When `spec.md`'s `revision` is newer than what the tasks were planned from, read the change log at the top of `spec.md`. Then:
 
+- **Check the design first.** If the change log marks a criterion that touches an interface, a data model, or a screen, the design may be stale: send the feature to `system-design` to re-validate the delta (Light tier) before planning anything. A wording-only revision skips this.
 - Add tasks only for NEW and CHANGED requirements, tagged with the new revision date.
 - If a change supersedes tasks that are not built yet, strike them through and keep the line with the reason (`~~T4~~ dropped: ...`); do not delete.
 - If the superseded work is already built, add a task to change it; do not rewrite history.
-- Never overwrite an old spec revision.
+- `spec.md` keeps its path across revisions; the earlier revision survives only in the change log. Never strip a change-log entry.
+- Update the `Spec: specs/NNN-slug/spec.md — Revision <date>` header to the revision you are planning from.
 - Added behavior means the strategy may need updating — extend `## Test strategy` with `test-strategy` before the new task's test.
 
 ### 6. Handle re-entry from review
 
-Read `review.md`. Add fix tasks for what is missing, strike through tasks that were wrong, leave finished tasks alone. If the problem is the design or the requirement, do not patch it here: send the feature back to `system-design` or `brainstorming` and say why.
+Read `review.md`. Add fix tasks for what is missing, strike through tasks that were wrong, leave finished tasks alone. If the problem is the design, send it back to `system-design`. If the problem is the requirement, send it back to `roadmap` (a new spec revision, then gate two again) — never patch the spec here.
 
 ### 7. Write and sync
 
@@ -109,8 +113,8 @@ specs/
 ├── _state.md              # current phase and feature (owned by `roadmap`)
 └── NNN-slug/
     ├── status.md          # one-feature status (roadmap creates; later skills update)
-    ├── spec.md  or  YYYY-MM-DD-<topic>.md   # requirements and AC-n
-    ├── design.md          # shape of THIS feature's solution (system-design; optional)
+    ├── spec.md            # requirements and AC-n (roadmap writes; `status: approved`)
+    ├── design.md          # shape of THIS feature's solution (system-design)
     ├── tasks.md           # this skill's output
     └── review.md          # review findings (owned by `review`)
 docs/
@@ -121,27 +125,29 @@ docs/
 
 Phases and progress live in `_roadmap.md`, `_state.md`, and each feature's `status.md`.
 
-The agreed **system design** lives in `docs/architecture/architecture.md` (with ADRs) and the agreed **UI** in `docs/design/` — that is what `system-design` writes and what this skill reads. A feature folder may also carry a short `design.md` recording the shape of that one feature's solution; read it when present, but the durable design is the one in `docs/`.
+The agreed **system design** lives in `docs/architecture/architecture.md` (with ADRs) and the agreed **UI** in `docs/design/` — that is what `system-design` writes and what this skill reads. The feature folder's `design.md` is the short, feature-scoped view of that design; it is the first place to look, but the durable design is the one in `docs/`.
 
 ## Red Flags
 
-| Thought                                                      | Reality                                                                                 |
-| ------------------------------------------------------------ | --------------------------------------------------------------------------------------- |
-| "I'll just plan from the conversation"                       | Plan from the spec and design.                                                          |
-| "The design is missing a detail, I'll decide it in the task" | That is `system-design`'s job. Go back, or mark a plan call if there is no design step. |
-| "I'll group these features into phases"                      | Phases belong to `roadmap`.                                                             |
-| "I'll add a 'write tests' task at the end"                   | Tests ship with the task that satisfies the criterion.                                  |
-| "I'll make every step a tiny task"                           | One task ≈ one PR. Over-splitting hides the real work.                                  |
-| "The spec changed, I'll re-plan everything"                  | Plan only the new/changed requirements.                                                 |
-| "That feature shipped, I'll reopen it"                       | Send it to `roadmap` as a follow-up feature.                                            |
-| "The list looks good, I'll start coding"                     | Planned is not approved. Wait for the gate.                                             |
-| "Approved, so I'll start building"                           | Only in the pipeline. Standalone, offer it in one line and stop.                        |
+| Thought                                                      | Reality                                                                                                 |
+| ------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------- |
+| "I'll just plan from the conversation"                       | Plan from the spec and design.                                                                          |
+| "The spec is only `status: spec`, close enough"              | Only `status: approved` counts. Send it back to `roadmap`.                                              |
+| "The design is missing a detail, I'll decide it in the task" | That is `system-design`'s job. Go back, or mark a plan call if there is no design step.                 |
+| "I'll group these features into phases"                      | Phases belong to `roadmap`.                                                                             |
+| "I'll add a 'write tests' task at the end"                   | Tests ship with the task that satisfies the criterion.                                                  |
+| "I'll make every step a tiny task"                           | One task ≈ one PR. Over-splitting hides the real work.                                                  |
+| "The spec changed, I'll re-plan everything"                  | Plan only the new/changed requirements; check the design delta first.                                   |
+| "That feature shipped, I'll reopen it"                       | Send it to `roadmap` — a `todo`/`doing` feature gets a spec revision, a `done` one a follow-up feature. |
+| "The list looks good, I'll start coding"                     | Planned is not approved. Wait for the gate.                                                             |
+| "Approved, so I'll start building"                           | Only in the pipeline. Standalone, offer it in one line and stop.                                        |
 
 ## Completion Check
 
 Done when all of these are true:
 
 - [ ] Inputs read; the mode is clear (first plan, revision delta, or re-entry).
+- [ ] `spec.md` exists with `status: approved`; no task was planned against a `status: spec` draft.
 - [ ] Every task traces to an `AC-n` or a design element, and every `AC-n` has a task with a test.
 - [ ] Tasks are PR-sized, ordered by dependency, parallel tracks noted.
 - [ ] Revisions planned as delta only; superseded tasks struck through, not deleted.

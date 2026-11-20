@@ -8,7 +8,7 @@ The reviewer **finds and reports; it never fixes.** Fixes go back to the author 
 
 - The diff: `BASE..HEAD` (`HEAD` from `git rev-parse HEAD`; `BASE` recorded **before** the implementer was dispatched). For a **batch**, this diff covers every member — review the whole of it as one unit.
 - The unit's brief and the implementer's report (the claims under review, to be treated as unverified). For a batch, the brief lists each member's file and change — check that the diff matches the list, no more and no less.
-- The current spec (newest dated file, or `spec.md`), the feature's `design.md`, and the relevant parts of `docs/architecture/architecture.md`.
+- The current spec (`specs/NNN-slug/spec.md`, `status: approved`; its `Revision:` line tells you which revision you are reviewing against), the feature's `design.md`, and the relevant parts of `docs/architecture/architecture.md`.
 
 Hand the reviewer these as crafted context. Never hand it the author's session history.
 
@@ -94,12 +94,13 @@ Write the report to `specs/NNN-slug/review.md` (or reply with it if standalone),
 
 The controller routes the outcome; the reviewer's job is to name where the problem lives.
 
-| The problem is in                      | Send to                                                                   |
-| -------------------------------------- | ------------------------------------------------------------------------- |
-| the code                               | `implement`                                                               |
-| the task list (wrong or missing tasks) | `planning`                                                                |
-| the design                             | `system-design`                                                           |
-| the requirement                        | `system-design` (revise the spec), or `brainstorming` if the PRD is wrong |
+| The problem is in                      | Send to                                                              |
+| -------------------------------------- | -------------------------------------------------------------------- |
+| the code                               | `implement`                                                          |
+| the task list (wrong or missing tasks) | `planning`                                                           |
+| the design                             | `system-design`                                                      |
+| the requirement                        | `roadmap` — a spec revision (delta only), then its Lavish gate again |
+| the PRD itself                         | `brainstorming` (project mode)                                       |
 
 - **Sending back:** the controller increments `cycle` in `specs/NNN-slug/status.md` (only a send-back increments it), sets `next` to the return target, and adds a one-line note. At `cycle_cap`, park with a ruling and ask the human.
 - **Clean or minor-only:** the unit is done (`development-loop` step 3.7). The **branch** lands once per feature, after the final review — not per unit.
