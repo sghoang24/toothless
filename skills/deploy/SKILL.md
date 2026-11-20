@@ -71,7 +71,7 @@ Return to the last good version with the pre-written step. Confirm the live syst
 
 ### 7. Record and report
 
-Tag the release; when the milestone closes, append the shipped PRs to `specs/_status.md` and advance the phase in `specs/_roadmap.md` / `specs/_state.md`. Report to the human: the deployed version, the evidence (smoke results, signals watched), on whose approval, and what's next.
+Tag the release. When the milestone closes, append the shipped PRs to `specs/_status.md` and **report the evidence to the human** — the phase itself is closed by `finishing-a-development-branch` at its release gate, never here; do not edit `_roadmap.md` or `_state.md`. Report to the human: the deployed version, the evidence (smoke results, signals watched), on whose approval, and what's next.
 
 ## Red Flags
 

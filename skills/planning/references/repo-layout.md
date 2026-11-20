@@ -108,12 +108,17 @@ record a new ADR first, then update `architecture.md`.
 ## Status tracking
 
 - **`_roadmap.md`** carries each phase's goal, verifiable exit criteria, release
-  gate checklist, and status (`planned | in-progress | done`).
+  gate checklist, and status (`planned | in-progress | done`). It is the only place
+  `feature`, `phase`, `covers`, and `depends_on` live.
 - **`_state.md`** is the cursor: `current_phase`, `phase_status`, `current_feature`.
-- **`specs/NNN-slug/status.md`** is one feature's status: `todo | doing | blocked |
-done`, its `current_unit`, `cycle` and `cycle_cap`, and a one-line `next` pointer. The step
-  inside a feature is not recorded; infer it from the files in the folder. Only
+- **`specs/NNN-slug/status.md`** is a **cursor, not a record**: `todo | doing | blocked |
+done`, `current_unit`, `cycle`, `cycle_cap`, and a one-line `next`. Nothing in it duplicates
+  the roadmap. `roadmap` creates it for the current phase; any consumer that finds it missing
+  creates it from the roadmap row and says so. Only
   `development-loop` increments `cycle`, and only when a unit is sent back (the cap is per unit — a task, or a batch of small same-shape tasks).
+- **A phase is closed by `finishing-a-development-branch`**, when its last feature lands: it verifies
+  the exit criteria, takes the human's explicit release-gate approval, flips the phase status, creates
+  the next phase's `status.md` files, and updates `_state.md`. `roadmap` never closes a phase.
 
 See the `roadmap` skill's `templates.md` for the exact formats.
 

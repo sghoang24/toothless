@@ -181,29 +181,29 @@ docs/
 
 ## Red Flags
 
-| Thought                                             | Reality                                                                                                                               |
-| --------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
-| "I'll design it all inline, dispatching is slow"    | Orchestrate. Dispatch the architect and the UI designer; you own reconciliation and review.                                           |
-| "I'll paste my session history into the subagent"   | Crafted context only — spec, roadmap, existing design, answered decisions. Never your history.                                        |
-| "I'll design it thoroughly like last time"          | Depth is a dial. Right-size to _this_ spec; over-design is a defect, not diligence.                                                   |
-| "Let me add a service/queue/layer for later"        | No speculative abstraction. Design what the spec needs, nothing more.                                                                 |
-| "It's a UI spec, but the architect covers it"       | System design is _how it fits_; the user still needs _what they see_. Dispatch the UI designer.                                       |
-| "No UI, but I'll design screens anyway"             | A CLI/headless service has no screens. Skip the UI designer and say so.                                                               |
-| "UI and system design can be agreed separately"     | Reconcile them: every screen's data need maps to a contract. Agree them together.                                                     |
-| "The mock is a prototype, I'll wire it up"          | No product code in Design. The mock is static and throwaway.                                                                          |
-| "I don't need to show the user, it's clearly good"  | Every design goes through the Lavish mock-review. It's not optional.                                                                  |
-| "I opened the Lavish artifact, so we're reviewing"  | Opened ≠ listening. Run `lavish-axi poll` (foreground) and keep it alive, or the browser says "your agent is not listening".          |
-| "I handled the feedback, so I'm done"               | Handled ≠ replied. Run `lavish-axi reply` (or re-poll with `--agent-reply`) or the board sticks on `Working` and the notes stay open. |
-| "They said it looks good, so I'll start coding"     | Shown ≠ agreed, and agreed design ≠ approval to build. Wait for the gate.                                                             |
-| "The spec is vague here, I'll design around it"     | Send it back. A spec change goes back to `roadmap` (a new revision, gate two again).                                                  |
-| "I'll put the logic in the controller, it's faster" | `AGENTS.md`: business logic lives in the service layer. The design must reflect that.                                                 |
-| "I'll overwrite docs/architecture/architecture.md"  | Extend it. Merge the new design with what's there.                                                                                    |
-| "I'll draw every diagram type to be safe"           | Draw the views this design needs at its tier — not one of each.                                                                       |
-| "I'll design one feature and let the phase wait"     | Phase scope designs them together — one pass, one review, and the cross-feature seams checked once.                                   |
-| "Two features can each define the shared contract"  | One owner per entity, interface, and build target. Two definitions of one contract is the defect phase scope exists to catch.         |
-| "It's a phase, so everything is Deep"                | Scope decides how many; the tier decides how much. A Light feature in a Deep phase stays Light.                                        |
-| "A feature has no design yet, so planning must wait"  | `planning` can cut tasks from the criteria alone. Design buys precision, not permission.                                            |
-| "I'll design the feature whose spec is still a draft"| Exclude it and report it. A draft spec has no approved meaning to design against.                                                     |
+| Thought                                               | Reality                                                                                                                               |
+| ----------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
+| "I'll design it all inline, dispatching is slow"      | Orchestrate. Dispatch the architect and the UI designer; you own reconciliation and review.                                           |
+| "I'll paste my session history into the subagent"     | Crafted context only — spec, roadmap, existing design, answered decisions. Never your history.                                        |
+| "I'll design it thoroughly like last time"            | Depth is a dial. Right-size to _this_ spec; over-design is a defect, not diligence.                                                   |
+| "Let me add a service/queue/layer for later"          | No speculative abstraction. Design what the spec needs, nothing more.                                                                 |
+| "It's a UI spec, but the architect covers it"         | System design is _how it fits_; the user still needs _what they see_. Dispatch the UI designer.                                       |
+| "No UI, but I'll design screens anyway"               | A CLI/headless service has no screens. Skip the UI designer and say so.                                                               |
+| "UI and system design can be agreed separately"       | Reconcile them: every screen's data need maps to a contract. Agree them together.                                                     |
+| "The mock is a prototype, I'll wire it up"            | No product code in Design. The mock is static and throwaway.                                                                          |
+| "I don't need to show the user, it's clearly good"    | Every design goes through the Lavish mock-review. It's not optional.                                                                  |
+| "I opened the Lavish artifact, so we're reviewing"    | Opened ≠ listening. Run `lavish-axi poll` (foreground) and keep it alive, or the browser says "your agent is not listening".          |
+| "I handled the feedback, so I'm done"                 | Handled ≠ replied. Run `lavish-axi reply` (or re-poll with `--agent-reply`) or the board sticks on `Working` and the notes stay open. |
+| "They said it looks good, so I'll start coding"       | Shown ≠ agreed, and agreed design ≠ approval to build. Wait for the gate.                                                             |
+| "The spec is vague here, I'll design around it"       | Send it back. A spec change goes back to `roadmap` (a new revision, gate two again).                                                  |
+| "I'll put the logic in the controller, it's faster"   | `AGENTS.md`: business logic lives in the service layer. The design must reflect that.                                                 |
+| "I'll overwrite docs/architecture/architecture.md"    | Extend it. Merge the new design with what's there.                                                                                    |
+| "I'll draw every diagram type to be safe"             | Draw the views this design needs at its tier — not one of each.                                                                       |
+| "I'll design one feature and let the phase wait"      | Phase scope designs them together — one pass, one review, and the cross-feature seams checked once.                                   |
+| "Two features can each define the shared contract"    | One owner per entity, interface, and build target. Two definitions of one contract is the defect phase scope exists to catch.         |
+| "It's a phase, so everything is Deep"                 | Scope decides how many; the tier decides how much. A Light feature in a Deep phase stays Light.                                       |
+| "A feature has no design yet, so planning must wait"  | `planning` can cut tasks from the criteria alone. Design buys precision, not permission.                                              |
+| "I'll design the feature whose spec is still a draft" | Exclude it and report it. A draft spec has no approved meaning to design against.                                                     |
 
 ## Completion Check
 

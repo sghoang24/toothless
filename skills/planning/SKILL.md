@@ -23,12 +23,12 @@ Read, in parallel:
 
 Pick the mode:
 
-| Mode                     | When                                                                     | What you do                                        |
-| ------------------------ | ------------------------------------------------------------------------ | -------------------------------------------------- |
-| **Phase plan**           | Every feature of the current phase has an approved spec                   | One task list per feature, cut in phase order      |
-| **First plan**           | No `tasks.md` for the feature                                            | Full task list for that one feature                |
-| **Revision delta**       | `spec.md`'s `revision` is newer than the one the tasks were planned from | Plan only NEW/CHANGED requirements                 |
-| **Re-entry from review** | `review.md` says the task list was wrong or incomplete                   | Fix the list; never redo finished tasks            |
+| Mode                     | When                                                                     | What you do                                   |
+| ------------------------ | ------------------------------------------------------------------------ | --------------------------------------------- |
+| **Phase plan**           | Every feature of the current phase has an approved spec                  | One task list per feature, cut in phase order |
+| **First plan**           | No `tasks.md` for the feature                                            | Full task list for that one feature           |
+| **Revision delta**       | `spec.md`'s `revision` is newer than the one the tasks were planned from | Plan only NEW/CHANGED requirements            |
+| **Re-entry from review** | `review.md` says the task list was wrong or incomplete                   | Fix the list; never redo finished tasks       |
 
 Pick **Phase plan** when the user says "plan the phase", "plan all the features", or when the pipeline reaches Plan. Pick a single-feature mode when only one feature is named.
 
@@ -38,7 +38,7 @@ Pick **Phase plan** when the user says "plan the phase", "plan all the features"
 
 Phase planning is the same work, repeated over the phase's features **without** stopping to approve each one separately. It is the right default in the pipeline: the phase's specs are all approved at once, so the criteria are all present and there is nothing gained by waiting.
 
-1. **Load the phase.** Read `specs/_state.md` for `current_phase`, then that phase's feature rows in `specs/_roadmap.md` (ID, `covers`, `depends_on`). Read each feature's `spec.md`, and its `design.md` **when it exists**.
+1. **Load the phase.** Read `specs/_state.md` for `current_phase`, then that phase's feature rows in `specs/_roadmap.md` (ID, `covers`, `depends_on`). Read each feature's `spec.md`, and its `design.md` **when it exists**. Ensure each feature has a `status.md` — create a missing one from its roadmap row (`status: todo`, `current_unit: null`, `cycle: 0`, `cycle_cap: 3`, `next: design`) and **say which were missing**: a silent create hides a roadmap run that stopped early.
 2. **Gate the input, per feature.** Every feature needs `spec.md` with `status: approved`. That is the only hard requirement. A feature without one is **excluded** from this run and reported, with the route back (`roadmap`). A feature whose design is missing is **not** excluded: plan it from its criteria and record the technical calls as **plan calls**. If a feature genuinely cannot be cut without a design decision (a new interface, a data-model change nobody has settled), say which one and send that feature to `system-design` — not the whole phase.
 3. **Cut the tasks per feature**, in **phase dependency order** (a feature whose `depends_on` is still unbuilt comes later). Each feature's list stands alone in its own `tasks.md`; nothing moves between features, because a feature is the unit the loop, the branch, and the PR run on.
 4. **Order across features too.** State the phase's feature sequence and which features are independent enough to run in parallel worktrees (`git-worktrees`, `dispatching-parallel-agents`). Record it once, in `specs/_roadmap.md`'s phase section or the phase's first feature's notes — not duplicated per feature.
@@ -149,20 +149,20 @@ The agreed **system design** lives in `docs/architecture/architecture.md` (with 
 
 ## Red Flags
 
-| Thought                                                      | Reality                                                                                                 |
-| ------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------- |
-| "I'll just plan from the conversation"                       | Plan from the spec. Use the design when it exists.                                                      |
-| "The spec is only `status: spec`, close enough"              | Only `status: approved` counts. Send it back to `roadmap`.                                              |
-| "No design yet, so I can't plan"                            | The criteria are enough. Plan, and mark the technical calls as plan calls.                             |
-| "The design is missing a detail, I'll decide it in the task" | Mark it as a plan call, or send that feature to `system-design` when it is hard to reverse.            |
-| "I'll group these features into phases"                      | Phases belong to `roadmap`.                                                                             |
+| Thought                                                      | Reality                                                                                                     |
+| ------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------- |
+| "I'll just plan from the conversation"                       | Plan from the spec. Use the design when it exists.                                                          |
+| "The spec is only `status: spec`, close enough"              | Only `status: approved` counts. Send it back to `roadmap`.                                                  |
+| "No design yet, so I can't plan"                             | The criteria are enough. Plan, and mark the technical calls as plan calls.                                  |
+| "The design is missing a detail, I'll decide it in the task" | Mark it as a plan call, or send that feature to `system-design` when it is hard to reverse.                 |
+| "I'll group these features into phases"                      | Phases belong to `roadmap`.                                                                                 |
 | "I'll plan the phase but guess the missing designs"          | Plan from the criteria and mark plan calls; only escalate a feature whose criteria need a real design call. |
-| "I'll add a 'write tests' task at the end"                   | Tests ship with the task that satisfies the criterion.                                                  |
-| "I'll make every step a tiny task"                           | One task ≈ one PR. Over-splitting hides the real work.                                                  |
-| "The spec changed, I'll re-plan everything"                  | Plan only the new/changed requirements; check the design delta first.                                   |
-| "That feature shipped, I'll reopen it"                       | Send it to `roadmap` — a `todo`/`doing` feature gets a spec revision, a `done` one a follow-up feature. |
-| "The list looks good, I'll start coding"                     | Planned is not approved. Wait for the gate.                                                             |
-| "Approved, so I'll start building"                           | Only in the pipeline. Standalone, offer it in one line and stop.                                        |
+| "I'll add a 'write tests' task at the end"                   | Tests ship with the task that satisfies the criterion.                                                      |
+| "I'll make every step a tiny task"                           | One task ≈ one PR. Over-splitting hides the real work.                                                      |
+| "The spec changed, I'll re-plan everything"                  | Plan only the new/changed requirements; check the design delta first.                                       |
+| "That feature shipped, I'll reopen it"                       | Send it to `roadmap` — a `todo`/`doing` feature gets a spec revision, a `done` one a follow-up feature.     |
+| "The list looks good, I'll start coding"                     | Planned is not approved. Wait for the gate.                                                                 |
+| "Approved, so I'll start building"                           | Only in the pipeline. Standalone, offer it in one line and stop.                                            |
 
 ## Completion Check
 

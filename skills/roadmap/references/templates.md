@@ -34,7 +34,7 @@ Exit criteria:
 - <verifiable>
   Release gate:
 - [ ] <checks for this phase>
-              Features:
+                  Features:
 - 003-<slug> — <one line> — covers: FR-2 — depends_on: 002
 - 004-<slug> — <one line> — covers: FR-3 — depends_on: 003
 
@@ -191,7 +191,9 @@ current_feature: 001-scaffold-ci
 updated: YYYY-MM-DD
 ```
 
-Only `roadmap` writes this file. Every other skill only reads it.
+`roadmap` creates it (create / revise / replan). One other skill updates it, and only one thing: when
+`finishing-a-development-branch` closes a phase and advances the cursor, it rewrites `current_phase`,
+`phase_status`, and `current_feature`. No other skill writes this file.
 
 ## specs/\_status.md (project PR ledger)
 
@@ -222,11 +224,11 @@ Updated: YYYY-MM-DD
 
 ## specs/NNN-slug/status.md
 
-```markdown
-feature: NNN-slug
-phase: 0
-covers: [FR-1, NFR-1]
-depends_on: []
+A **cursor**, not a record. It answers "where is this feature now" — never "what is this feature".
+`feature`, `phase`, `covers`, and `depends_on` live in `_roadmap.md` only; duplicating them here was what
+made this file look like a second spec. Six fields, keep them short:
+
+```yaml
 status: todo # todo | doing | blocked | done
 current_unit: null # e.g. T3, or T4-T6 for a batch — what the loop is building
 cycle: 0 # times THIS unit was sent back (only the loop increments it)
@@ -236,19 +238,22 @@ notes: |
 <short, newest first>
 ```
 
-Created by `roadmap` when the phase becomes current (`status: todo`, `cycle: 0`, `next: design`).
-Updated by `system-design`, `planning`, and `development-loop`. Its `spec.md` already exists by then —
-step 6 writes specs for every phase, so a missing spec at this point is a roadmap defect.
+Created by `roadmap` at Create mode step 6c (or when a phase advances) for the features of the
+**current phase**. Updated by `system-design`, `planning`, and `development-loop`.
+
+**Missing is recoverable, not fatal.** Every field is either derived from `_roadmap.md` or a constant,
+so any consumer that needs it can create it from the feature's roadmap row without ambiguity —
+see _Ensure, don't assume_ below.
 
 ## Who writes what
 
 | File          | Created by                                                                                 | Updated by                                                                                                                                                       |
 | ------------- | ------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `_roadmap.md` | `roadmap`                                                                                  | `roadmap` (replan); the user approves                                                                                                                            |
-| `_state.md`   | `roadmap`                                                                                  | `roadmap`                                                                                                                                                        |
+| `_roadmap.md` | `roadmap`                                                                                  | `roadmap` (replan / revise); the user approves                                                                                                                   |
+| `_state.md`   | `roadmap`                                                                                  | `roadmap`, and `finishing-a-development-branch` when it closes a phase                                                                                           |
 | `_status.md`  | `roadmap`                                                                                  | `finishing-a-development-branch` (each landing), `deploy` (phase ship)                                                                                           |
-| `spec.md`     | `roadmap` — via the **spec-writer subagent**, one per phase; gate-two approval by the user | `roadmap` (revision at replan: delta only, then gate two again)                                                                                                  |
-| `status.md`   | `roadmap` (current phase only)                                                             | `system-design`, `planning`, `development-loop` (`status`, `current_unit`, `next`, `notes`); only the loop increments `cycle`, and only when a unit is sent back |
+| `spec.md`     | `roadmap` — via the **spec-writer subagent**, one per phase; gate-two approval by the user | `roadmap` (revision: delta only, then gate two again)                                                                                                            |
+| `status.md`   | `roadmap`; a consumer may create a missing one (see _Ensure, don't assume_)                | `system-design`, `planning`, `development-loop` (`status`, `current_unit`, `next`, `notes`); only the loop increments `cycle`, and only when a unit is sent back |
 
 ## Status meanings
 
@@ -259,11 +264,35 @@ step 6 writes specs for every phase, so a missing spec at this point is a roadma
 
 ## Choosing the next feature
 
-The first feature in the current phase, in roadmap order, whose `depends_on` features are all `status: done`. If none is ready and the phase is not finished, set `blocked` on the feature that is holding things up and ask the user.
+The first feature in the current phase, in **roadmap order**, whose `depends_on` features are all
+`status: done`. Read the order and the dependencies from `_roadmap.md`; read the `status` field from each
+feature's `status.md`. If none is ready and the phase is not finished, set `blocked` on the feature that
+is holding things up and ask the user.
+
+## Ensure, don't assume
+
+`status.md` is the one artifact whose absence is not an error to stop on. Before a skill uses a
+feature's `status.md`, it ensures one exists: create it from the feature's `_roadmap.md` row
+(`status: todo`, `current_unit: null`, `cycle: 0`, `cycle_cap: 3`, `next: design`) and **say it was
+missing** — a silent create hides a roadmap run that stopped early.
+
+| Skill                            | Ensures for                                      |
+| -------------------------------- | ------------------------------------------------ |
+| `planning` (phase mode)          | every feature of the phase, before cutting tasks |
+| `development-loop`               | the feature it is about to build                 |
+| `finishing-a-development-branch` | every feature of the phase it just opened        |
+
+Creating one is always safe: the content is derived, never invented, so two skills creating the same
+file produce the same file.
 
 ## Release gate
 
-When every feature in the phase is `done`, `roadmap` runs replan: verify the exit criteria, go through the release gate checklist with the user, and only then mark the phase `done` and advance. Never deploy or tick the gate without explicit confirmation.
+When every feature in the phase is `done`, the phase is closed by
+**`finishing-a-development-branch`** — the skill that lands the last feature's branch already holds the
+evidence, so it is the only place a phase becomes `done`. It verifies the exit criteria against that
+evidence, walks this checklist with the human, records the Phase log, flips the phase status, creates
+the next phase's `status.md` files, and updates `_state.md`. Never deploy or tick the gate without
+explicit confirmation; never close a phase from `roadmap`, `deploy`, or `fight`.
 
 ## Sizing check for a feature
 
