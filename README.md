@@ -20,15 +20,15 @@ Brainstorm -> Roadmap -> Design -> Plan -> Development (loop) -> Deploy
 
 Every change walks this pipeline. The **gates** between phases are hard — nothing skips one:
 
-| Gate             | Rule                                                                                                                                                                        |
-| ---------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| PRD → Roadmap    | No roadmap without an **approved PRD** (`docs/product/PRD.md`) and its `FR-n` / `NFR-n` IDs.                                                                                |
-| Roadmap → Design | Two Lavish reviews passed: the **slicing** (`specs/_roadmap.md`, `specs/_state.md`) and the **specs** — every feature has `specs/NNN-slug/spec.md` with `status: approved`. |
-| Design → Plan    | No planning until the **design is agreed** (`docs/architecture/architecture.md`, plus `docs/design/` for a UI).                                                             |
-| Plan → Implement | No code before an **approved task list** (`specs/NNN-slug/tasks.md`) and its `## Test strategy`.                                                                            |
-| Loop → next unit | The loop cap is **3 cycles per unit** (a task, or a batch of small same-shape tasks); each cycle must change the approach, and after the third, STOP and ask a human.       |
-| Land             | A finished branch gets an **MR/PR raised for the human**; **merging needs explicit human approval** — never merge on your own.                                              |
-| Deploy           | Requires **explicit human approval**. Never deploy on your own.                                                                                                             |
+| Gate             | Rule                                                                                                                                                                                                                                 |
+| ---------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| PRD → Roadmap    | No roadmap without an **approved PRD** (`docs/product/PRD.md`) and its `FR-n` / `NFR-n` IDs.                                                                                                                                         |
+| Roadmap → Design | Two Lavish reviews passed: the **slicing** (`specs/_roadmap.md`, `specs/_state.md`) and the **specs** — every feature has `specs/NNN-slug/spec.md` with `status: approved`.                                                          |
+| Design → Plan    | No planning until the **design is agreed** (`docs/architecture/architecture.md`, plus `docs/design/` for a UI).                                                                                                                      |
+| Plan → Implement | No code before an **approved task list** (`specs/NNN-slug/tasks.md`) and its `## Test strategy`.                                                                                                                                     |
+| Loop → next unit | The loop cap is **3 cycles per unit** (a task, or a batch of small same-shape tasks); each cycle must change the approach, and after the third, STOP and ask a human.                                                                |
+| Land             | A finished branch gets an **MR/PR raised for the human**; **merging needs explicit human approval** — never merge on your own. When it is the phase's last feature, the phase closes here, and only on an explicit release-gate yes. |
+| Deploy           | Requires **explicit human approval**. Never deploy on your own.                                                                                                                                                                      |
 
 ## Install
 
@@ -111,19 +111,22 @@ directly, or let fight drive — the skills don't depend on it.
   **Lavish** reviews: first the slicing, then the acceptance criteria. Output: `specs/_roadmap.md`,
   `specs/_state.md`, `specs/_status.md`, `specs/NNN-slug/spec.md` for every feature, and
   `status.md` for the current phase's features. It is the **only writer of `spec.md`**, and also
-  **replans** as phases close or scope shifts — re-validating the next phase's specs from their
-  change logs.
-- **system-design** — the **Design phase orchestrator**. It right-sizes the design
-  (Light / Standard / Deep), dispatches the design work to fresh subagents, reconciles them,
-  runs the Lavish review, and writes the agreed design. Output:
-  `docs/architecture/architecture.md` (+ `docs/design/` for a UI) and ADRs.
+  **replans** when scope shifts — re-validating the next phase's specs from their change logs. It
+  never closes a phase: `finishing-a-development-branch` does that.
+- **system-design** — the **Design phase orchestrator**. It right-sizes each feature's design
+  (Light / Standard / Deep), dispatches one architect per feature (parallel across a phase) plus a
+  UI designer when a spec has a UI, reconciles them per feature and across features, runs one
+  Lavish review, and writes the agreed design. Designs **one feature, or the whole current phase**
+  in one pass. Output: `docs/architecture/architecture.md`, `docs/design/` for a UI, each feature's
+  `specs/NNN-slug/design.md`, and ADRs.
 - **ui-design** — the UI half of Design: turns the spec into screens, flows, states, and a
   design system, then mocks them as **static HTML** (no product code) for review. Dispatched by
   `system-design`; uses `ui-ux-pro-max` for the visual direction when it's installed.
-- **planning** — plans **one feature**: turns the agreed spec and design into an ordered list of
-  PR-sized tasks, each traced to acceptance criteria and carrying its own tests. It closes the Plan
-  phase by settling the feature's `## Test strategy` (via `test-strategy`). Output:
-  `specs/NNN-slug/tasks.md`.
+- **planning** — plans **a feature or the whole current phase**: turns the approved acceptance criteria
+  into ordered lists of PR-sized tasks, each traced to a criterion and carrying its own tests. Phase
+  mode plans every feature of the phase in one run and settles one shared `## Test strategy` via
+  `test-strategy`. A design is optional enrichment — with none, the technical calls land as plan
+  calls. Output: `specs/NNN-slug/tasks.md` per planned feature.
 
 ### Loop skills (`implement -> verify -> review`)
 
@@ -180,7 +183,10 @@ their results flow back through the normal loop; standalone, they still hold the
 
 - **finishing-a-development-branch** — closes the task's branch: raises the **MR/PR for the human
   to review** (the default), or merges **only on explicit human approval** (treated exactly like a
-  deploy), then cleans up the worktree. Never pushes to `main`/`master`, never force-pushes.
+  deploy), then cleans up the worktree. It is also the **only place a phase closes**: when the last
+  feature of a phase lands, it verifies the exit criteria against evidence, takes your explicit
+  release-gate approval, marks the phase `done`, opens the next one, and creates that phase's
+  `status.md` files.
 
 ### Deploy skill (spine exit)
 
@@ -210,14 +216,8 @@ their results flow back through the normal loop; standalone, they still hold the
    per phase writes `specs/NNN-slug/spec.md` for every feature, with testable acceptance criteria
    and an `AC → requirement mapping`; you approve those through a second Lavish review.
    → `specs/_roadmap.md`, `specs/_state.md`, `specs/_status.md`, and an approved `spec.md` per feature.
-3. **Design.** `system-design` picks a tier, dispatches an **architect** subagent (and a **UI
-   designer** when the spec has a UI), reconciles them, shows the result via **Lavish**, then
-   writes `docs/architecture/architecture.md` (+ `docs/design/`, plus the feature's short
-   `specs/NNN-slug/design.md`) and draws diagrams with **archify**.
-4. **Plan.** `planning` turns the feature's spec and agreed design into an ordered list of
-   PR-sized tasks, each traced to acceptance criteria with its own tests. As the last step of this
-   phase, `test-strategy` settles the feature's `## Test strategy` (command, layers, seams).
-   → `specs/NNN-slug/tasks.md`.
+3. **Design.** `system-design` picks a tier per feature and designs **the whole current phase in one pass**: one **architect** per feature (parallel), plus a **UI designer** when a spec has a UI, reconciled per feature and across features, then one **Lavish** review. It writes `docs/architecture/architecture.md`, `docs/design/`, each feature's short `specs/NNN-slug/design.md`, and draws diagrams with **archify**.
+4. **Plan.** `planning` plans **the phase in one pass** — one task list per feature, ordered by dependency, each task traced to an acceptance criterion with its own tests. `test-strategy` settles one shared command and seam set for the phase, with per-feature layers. The design sharpens this but is not required. → `specs/NNN-slug/tasks.md` for every feature of the phase.
 5. **Development loop.** For each task, `development-loop` extracts the task into a **brief file**,
    dispatches a fresh **implementer** subagent (which builds it test-first following the feature's
    test strategy, proves it green, and writes a report), then reads that evidence and dispatches a
@@ -227,15 +227,18 @@ their results flow back through the normal loop; standalone, they still hold the
    same-shape tasks), each changing the approach. After
    the last unit, one **whole-branch review** judges the feature as a whole.
 6. **Land.** `finishing-a-development-branch` raises the **MR/PR for you to review** — the default.
-   It merges only when you explicitly approve (like a deploy), then cleans up the worktree.
+   It merges only when you explicitly approve (like a deploy), then cleans up the worktree. If this
+   was the phase's last feature, it also **closes the phase**: exit criteria verified against
+   evidence, your explicit release-gate yes, then the next phase opens with its `status.md` files.
 7. **Parallelize (optional).** Independent tasks fan out via `dispatching-parallel-agents`, one
    worktree + branch each, merged sequentially.
 8. **Deploy (milestone).** `e2e-testing` proves the assembled product; `deploy` takes the proven
    candidate to production — only with explicit human approval.
 
-The coordinator **stops at every phase boundary** by default: it walks the phase's exit criteria
-and targets in `specs/_roadmap.md`, reports what's true, and waits for you before starting the
-next phase. Widen the run only when you ask ("run to the end of P1", "chạy liền P1→P2").
+The coordinator **stops at every phase boundary** by default: `finishing-a-development-branch` closes
+the phase against its exit criteria and your explicit release-gate approval, then it reports what's
+true and waits before the next phase opens. Widen the run only when you ask ("run to the end of P1",
+"chạy liền P1→P2").
 
 ## Parallel work
 
@@ -282,7 +285,7 @@ runs (the first spec bootstraps what's missing).
     │                      #     ui-design-prompt.md, design-depth.md, question-bank.md,
     │                      #     architecture-template.md)
     ├── ui-design/         #   screens + static mocks
-    ├── planning/          #   per-feature tasks (+ references/tasks-template.md,
+    ├── planning/          #   phase or feature tasks (+ references/tasks-template.md,
     │                      #     task-sizing.md, repo-layout.md, question-bank.md)
     ├── test-strategy/     #   Plan phase: feature test strategy (what/where/how much)
     ├── development-loop/  #   the loop: implement -> verify -> review, per unit (task or batch)

@@ -10,7 +10,7 @@ owns features and phases; this file owns the tasks inside one feature.
 # Tasks — <feature name> (NNN-slug)
 
 Spec: specs/NNN-slug/spec.md — Revision <YYYY-MM-DD> (`status: approved`)
-Design: specs/NNN-slug/design.md → docs/architecture/architecture.md (+ docs/design/ when there's a UI)
+Design: specs/NNN-slug/design.md → docs/architecture/architecture.md (+ docs/design/ when there's a UI) — omit this line when there is no design
 Status: planned
 
 ## Tasks
@@ -71,10 +71,12 @@ requirements get no new tasks.
   sub-step, not an epic. See `task-sizing.md`.
 - Every task names its **outcome** (what's true when done) and its **Verify:**
   line (how you'd confirm it) — a task missing either one isn't sized.
-- Every task traces to an **`AC-n`** (or a design element); every `AC-n` has at
-  least one task with a **named test**. The **`## Test strategy`** section (set
-  once per feature by `test-strategy`, in the Plan phase) names the command, the
-  layers in play, and the shared seams each task's test follows — see `test-strategy`.
+- Every task traces to an **`AC-n`**; every `AC-n` has at
+  least one task with a **named test**. The **`## Test strategy`** section (set once
+  per phase by `test-strategy`, in the Plan phase) names the command, the layers in
+  play, and the shared seams each task's test follows — see `test-strategy`.
+- The design, when one exists, sharpens a task's files and boundary but never justifies
+  a task on its own. A technical call made without a design is listed under **Plan calls**.
 - Task IDs (`T1`...) are stable within the feature; once assigned, don't renumber.
 - Each task carries its **spec revision date** and its **`depends_on`**.
 - **Superseded tasks are struck through, not deleted** (`~~T5~~ dropped: ...`).

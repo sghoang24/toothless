@@ -97,9 +97,13 @@ Approval of the roadmap is **not** the end of this skill: the human's yes starts
 - Set `_roadmap.md` to `status: approved`.
 - Write `specs/_state.md`.
 - Create `specs/_status.md` — the project PR ledger, empty (template in `references/templates.md`).
-- For the **current phase only**, create `specs/NNN-slug/status.md` for each feature (`status: todo`, `cycle: 0`, `cycle_cap: 3`, `next: design`). Template in `references/templates.md`. Status files for later phases wait until replan advances them — their `spec.md` already exists.
-- Do **not** write `design.md` or `tasks.md`, and do not open a later phase.
+- Create `specs/NNN-slug/status.md` for the features of the **current phase only** (`status: todo`, `current_unit: null`, `cycle: 0`, `cycle_cap: 3`, `next: design`). Template in `references/templates.md`. It is a **cursor** — `feature`, `phase`, `covers`, and `depends_on` stay in `_roadmap.md` and are not repeated here.
+- Do **not** write `design.md` or `tasks.md`.
 - Set `current_feature` to the first feature whose dependencies are all `done`.
+
+**Why only the current phase gets a `status.md`.** A later phase's feature has `spec.md` and no `status.md`, and that is correct, not an omission. The spec is durable: it belongs to the feature from the moment it is approved. `status.md` is a live cursor — `todo` / `cycle: 0` / `next: design` adds nothing `_roadmap.md` does not already say, and the plan may still rename, split, merge, or drop that feature. If a later phase looks un-planned because its folders hold only `spec.md`, read `_roadmap.md`: it is the plan. When you check your own work, a missing `status.md` outside the current phase is expected.
+
+A **consumer** that needs a `status.md` and finds none creates it from the feature's `_roadmap.md` row and says it was missing — see _Ensure, don't assume_ in `references/templates.md`. That is safe because every field is derived, never invented.
 
 **6d. Handoff:** **in the pipeline**, invoke `system-design` for that feature (or `planning` if there is no design skill) and nothing else. **On its own**, invoke nothing — name the next step in one line. Either way, the 6c files exist before you stop.
 
@@ -112,7 +116,7 @@ Approval of the roadmap is **not** the end of this skill: the human's yes starts
 5. **Adjust later phases:** reorder, split, add, or drop features. Explain every change in one line each. For a change that alters later phases, get the user's approval in one message.
 6. **Mid-phase change requests:** add a feature to the current phase only if it is needed to meet its exit criteria; otherwise put it in a later phase or the backlog section.
 7. **Re-validate the next phase's specs, then advance.** A phase's specs were written when it was planned, and the roadmap has moved since. Before the phase becomes current, diff each `specs/NNN-slug/spec.md` of that phase against `_roadmap.md` (feature renamed, split, merged, or dropped?) and against the current PRD (a `FR-n`/`NFR-n` it `covers` changed?). Matching specs keep their revision and are marked `status: approved`. Drifting ones get the delta only — the changed acceptance criteria — as a new `Revision:` line with a change log, then go back through gate two. A feature the replan add or recut has no spec yet: dispatch a spec writer for that phase (step 6a) and review it (6b).
-8. **Advance:** mark the finished phase `done`, the next one `in-progress`, create `status.md` for its features, update `_state.md`, then hand off to `system-design` for the first ready feature (on its own, name that step in one line and stop). The new phase's specs are re-validated and its `status.md` files exist before you hand off.
+8. **Hand back, do not advance.** Replan never flips a phase to `done` and never opens the next one — **`finishing-a-development-branch`** owns that, because it holds the last landing's evidence and the release gate. When the plan changed, say what changed, then hand the phase's first ready feature back to `system-design` (on its own, name that step in one line and stop). If the phase is finished and only needs closing, say so and stop — closing is `finishing`'s job.
 
 If a feature is `blocked` because its spec or the PRD was wrong, send the user to `brainstorming` (project mode when the PRD changes; otherwise fix the spec here through the spec writer), then come back here to replan.
 
@@ -150,21 +154,22 @@ The order a feature moves through: `design` → `plan` → `development-loop` (`
 
 ## Red Flags
 
-| Thought                                           | Reality                                                                                         |
-| ------------------------------------------------- | ----------------------------------------------------------------------------------------------- |
-| "I'll create folders for every phase now"         | `status.md` is current-phase only. A spec per feature exists for every phase — a folder is not. |
-| "I'll split by layer: DB, then API, then UI"      | Nothing runs until the end. Slice vertically.                                                   |
-| "I'll write the specs myself while I'm here"      | Dispatch a spec writer per phase. You own the gates and the checks, not the drafting.           |
-| "The roadmap is approved, so the specs can wait"  | Gate one approves the slicing; gate two approves the specs. No design starts until gate two.    |
-| "I'll skip the Lavish review, it's clearly right" | Both gates are Lavish reviews. A gate you did not run is a gate you did not pass.               |
-| "The specs for later phases might drift, fine"    | Re-validate them at replan (step 7). A stale spec goes back through gate two, delta only.       |
-| "I'll write a new dated spec file for the change" | Bump `Revision:` in `spec.md`. A second current spec means half the readers pick the wrong one. |
-| "The feature already shipped, I'll edit its spec" | A follow-up feature instead. The shipped spec is the record of what was agreed then.            |
-| "It's one AC, I'll skip gate two on the revision" | One AC changes what "done" means. Gate two is cheap; a wrong AC costs a whole loop.             |
-| "Only wording moved, the design still fits"       | Check interface, data model, screen. If any moved, re-validate the design delta.                |
-| "The phase probably met its exit criteria"        | Verify, or ask.                                                                                 |
-| "The PRD has no IDs, I'll skip coverage"          | Add IDs, then check coverage.                                                                   |
-| "The roadmap is approved, so I'm done"            | Approval starts step 6. Without the specs and 6c's files the run is incomplete.                 |
+| Thought                                             | Reality                                                                                                |
+| --------------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
+| "I'll create folders for every phase now"           | Specs exist for every phase; `status.md` is for the current phase only.                                |
+| "I'll split by layer: DB, then API, then UI"        | Nothing runs until the end. Slice vertically.                                                          |
+| "I'll write the specs myself while I'm here"        | Dispatch a spec writer per phase. You own the gates and the checks, not the drafting.                  |
+| "The roadmap is approved, so the specs can wait"    | Gate one approves the slicing; gate two approves the specs. No design starts until gate two.           |
+| "I'll skip the Lavish review, it's clearly right"   | Both gates are Lavish reviews. A gate you did not run is a gate you did not pass.                      |
+| "The specs for later phases might drift, fine"      | Re-validate them at replan (step 7). A stale spec goes back through gate two, delta only.              |
+| "I'll write a new dated spec file for the change"   | Bump `Revision:` in `spec.md`. A second current spec means half the readers pick the wrong one.        |
+| "The feature already shipped, I'll edit its spec"   | A follow-up feature instead. The shipped spec is the record of what was agreed then.                   |
+| "It's one AC, I'll skip gate two on the revision"   | One AC changes what "done" means. Gate two is cheap; a wrong AC costs a whole loop.                    |
+| "Only wording moved, the design still fits"         | Check interface, data model, screen. If any moved, re-validate the design delta.                       |
+| "The phase's features all merged, so I'll close it" | `finishing-a-development-branch` closes a phase — exit criteria with evidence, then your explicit yes. |
+| "The phase probably met its exit criteria"          | Verify, or ask.                                                                                        |
+| "The PRD has no IDs, I'll skip coverage"            | Add IDs, then check coverage.                                                                          |
+| "The roadmap is approved, so I'm done"              | Approval starts step 6. Without the specs and 6c's files the run is incomplete.                        |
 
 ## Completion Check
 
@@ -177,10 +182,12 @@ The order a feature moves through: `design` → `plan` → `development-loop` (`
 - [ ] The specs were **approved through a Lavish review** (gate two) and every spec's frontmatter reads `status: approved`; no feature carries more than ~8 ACs.
 - [ ] `specs/_state.md` exists and `current_feature` is the first ready feature whose dependencies are all `done`.
 - [ ] `specs/_status.md` exists with its header and empty ledger table.
-- [ ] The current phase's features each have `specs/NNN-slug/status.md` (`status: todo`, `cycle: 0`, `cycle_cap: 3`, `next: design`); no later phase has one yet.
+- [ ] The **current phase's** features each have `specs/NNN-slug/status.md` (`status: todo`, `current_unit: null`, `cycle: 0`, `cycle_cap: 3`, `next: design`). A later phase's feature has `spec.md` and no `status.md` yet — that is expected.
 - [ ] No `design.md` or `tasks.md` was written here, and no code was touched.
 - [ ] The handoff was made (pipeline: `system-design` for the current feature; standalone: the next step named in one line).
 
 **Revise mode** is complete when: the change was routed by feature state (`todo`/`doing` → revise; `done` → follow-up feature; PRD wrong → project mode); `spec.md` was rewritten as a stand-alone document with a bumped `Revision:` and a `NEW`/`CHANGED`/`UNCHANGED` change log; AC IDs stayed stable; gate two approved the changed criteria and `status` is back to `approved`; and a design touching an interface, data model, or screen sent the feature to `next: design`. No second dated spec file was created.
 
-Missing specs, `_state.md`, `_status.md`, or the current phase's `status.md` files means the run stopped early: finish step 6 before reporting anything as done.
+**No mode here closes a phase.** Marking a phase `done` and opening the next one is `finishing-a-development-branch`'s step 6, after the human approves the release gate.
+
+Missing `spec.md` for any feature, or `_state.md` / `_status.md`, or a `status.md` for a **current-phase** feature, means the run stopped early: finish step 6 before reporting anything as done.
