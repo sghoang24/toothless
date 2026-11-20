@@ -23,7 +23,9 @@ Three mappings, never mixed:
 - **Feature → phase:** `roadmap` groups features into phases. Phase membership and
   order live in `specs/_roadmap.md`, not in the feature folder.
 - **Feature → tasks:** `planning` turns one feature's acceptance criteria and
-  design into tasks in the feature's `tasks.md`.
+  design into tasks in the feature's `tasks.md`. The criteria are the required input;
+  the design is an enrichment. A feature with no design is still plannable — the
+  technical calls it forces are recorded as **plan calls**.
 
 ## The current spec and its revisions
 

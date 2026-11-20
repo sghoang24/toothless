@@ -122,11 +122,11 @@ directly, or let fight drive — the skills don't depend on it.
 - **ui-design** — the UI half of Design: turns the spec into screens, flows, states, and a
   design system, then mocks them as **static HTML** (no product code) for review. Dispatched by
   `system-design`; uses `ui-ux-pro-max` for the visual direction when it's installed.
-- **planning** — plans **a feature or the whole current phase**: turns the agreed specs and designs
-  into ordered lists of PR-sized tasks, each traced to acceptance criteria and carrying its own
-  tests. Phase mode plans every feature of the phase in one run (once their designs are agreed) and
-  settles one shared `## Test strategy` via `test-strategy`. Output: `specs/NNN-slug/tasks.md` per
-  planned feature.
+- **planning** — plans **a feature or the whole current phase**: turns the approved acceptance criteria
+  into ordered lists of PR-sized tasks, each traced to a criterion and carrying its own tests. Phase
+  mode plans every feature of the phase in one run and settles one shared `## Test strategy` via
+  `test-strategy`. A design is optional enrichment — with none, the technical calls land as plan
+  calls. Output: `specs/NNN-slug/tasks.md` per planned feature.
 
 ### Loop skills (`implement -> verify -> review`)
 
@@ -214,7 +214,7 @@ their results flow back through the normal loop; standalone, they still hold the
    and an `AC → requirement mapping`; you approve those through a second Lavish review.
    → `specs/_roadmap.md`, `specs/_state.md`, `specs/_status.md`, and an approved `spec.md` per feature.
 3. **Design.** `system-design` picks a tier per feature and designs **the whole current phase in one pass**: one **architect** per feature (parallel), plus a **UI designer** when a spec has a UI, reconciled per feature and across features, then one **Lavish** review. It writes `docs/architecture/architecture.md`, `docs/design/`, each feature's short `specs/NNN-slug/design.md`, and draws diagrams with **archify**.
-4. **Plan.** `planning` plans **the phase in one pass** — one task list per feature, ordered by dependency, each task traced to acceptance criteria with its own tests. `test-strategy` settles one shared command and seam set for the phase, with per-feature layers. → `specs/NNN-slug/tasks.md` for every feature of the phase.
+4. **Plan.** `planning` plans **the phase in one pass** — one task list per feature, ordered by dependency, each task traced to an acceptance criterion with its own tests. `test-strategy` settles one shared command and seam set for the phase, with per-feature layers. The design sharpens this but is not required. → `specs/NNN-slug/tasks.md` for every feature of the phase.
 5. **Development loop.** For each task, `development-loop` extracts the task into a **brief file**,
    dispatches a fresh **implementer** subagent (which builds it test-first following the feature's
    test strategy, proves it green, and writes a report), then reads that evidence and dispatches a

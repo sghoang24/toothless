@@ -148,7 +148,7 @@ Once the design is stable, draw its views with the **`archify`** skill — e.g. 
 
 Write the agreed system design to `docs/architecture/architecture.md` (merged with any existing content, not overwritten). When there's a UI, write the agreed screens, flows, states, and design system to `docs/design/`. Record each genuinely hard-to-reverse decision as an ADR under `docs/architecture/adr/` per `AGENTS.md`. Link the diagram artifacts.
 
-Also write each designed feature's short `specs/NNN-slug/design.md` — the shape of **that** feature's solution (data model, interfaces, flows, screens it touches), linking to `docs/architecture/architecture.md` rather than restating it, or `design: skipped — <reason>` when the spec needs no design. `planning` and the loop read that file, and a missing one is what forces planning to stop and come back.
+Also write each designed feature's short `specs/NNN-slug/design.md` — the shape of **that** feature's solution (data model, interfaces, flows, screens it touches), linking to `docs/architecture/architecture.md` rather than restating it, or `design: skipped — <reason>` when the spec needs no design. `planning` and the loop read that file when it exists; without it they plan from the acceptance criteria and record the technical calls as plan calls, so a missing one costs precision, not a stop.
 
 ### 9. Gate
 
@@ -199,16 +199,17 @@ docs/
 | "I'll put the logic in the controller, it's faster" | `AGENTS.md`: business logic lives in the service layer. The design must reflect that.                                                 |
 | "I'll overwrite docs/architecture/architecture.md"  | Extend it. Merge the new design with what's there.                                                                                    |
 | "I'll draw every diagram type to be safe"           | Draw the views this design needs at its tier — not one of each.                                                                       |
-| "I'll design one feature and let the phase wait"     | Phase scope designs them together — one pass, one review. Designing per feature is what makes `planning` stop and restart.            |
+| "I'll design one feature and let the phase wait"     | Phase scope designs them together — one pass, one review, and the cross-feature seams checked once.                                   |
 | "Two features can each define the shared contract"  | One owner per entity, interface, and build target. Two definitions of one contract is the defect phase scope exists to catch.         |
 | "It's a phase, so everything is Deep"                | Scope decides how many; the tier decides how much. A Light feature in a Deep phase stays Light.                                        |
+| "A feature has no design yet, so planning must wait"  | `planning` can cut tasks from the criteria alone. Design buys precision, not permission.                                            |
 | "I'll design the feature whose spec is still a draft"| Exclude it and report it. A draft spec has no approved meaning to design against.                                                     |
 
 ## Completion Check
 
 You are done when ALL are true:
 
-- [ ] Design traces to the approved spec (`specs/NNN-slug/spec.md`, `status: approved`) and its roadmap position; no invented scope or order. `planning` runs after the design is agreed, not before.
+- [ ] Design traces to the approved spec (`specs/NNN-slug/spec.md`, `status: approved`) and its roadmap position; no invented scope or order.
 - [ ] The scope is stated (one feature or the current phase); in phase scope, every feature in it was designed together, and any excluded feature was reported with the reason.
 - [ ] A tier (Light / Standard / Deep) is chosen **per feature** and stated, and each design matches it — nothing over-built.
 - [ ] The architect subagent was dispatched with crafted context (not this session's history); the UI designer too when the spec has a UI.

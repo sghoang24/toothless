@@ -81,7 +81,7 @@ Brainstorm -> Roadmap -> Design -> Plan (incl. test-strategy) -> Development (lo
 
 - No roadmap without an approved PRD (via `brainstorming`, project mode).
 - No design and no code without an **approved spec** — `specs/NNN-slug/spec.md` with `status: approved`, whose acceptance criteria the human approved in the Roadmap phase's second Lavish gate. A `status: spec` draft is not an approved spec.
-- No implementation until the design is agreed — that means `docs/architecture/architecture.md` reflects the agreed system design, and `docs/design/` the agreed UI when the spec has one.
+- No implementation until the design is agreed — `docs/architecture/architecture.md` reflects the agreed system design, and `docs/design/` the agreed UI when the spec has one. This gate holds before **code**, not before **planning**: tasks flow from acceptance criteria, so `planning` may run before Design and record the technical calls it has to make as plan calls. When no design is needed, the feature records `design: skipped — <reason>`.
 - No code before an approved task list — `specs/NNN-slug/tasks.md` (via `planning`).
 - A finished branch gets an **MR/PR raised for the human**; **merging requires explicit human approval** (`finishing-a-development-branch`) — exactly like a deploy. Never merge on your own.
 - Deploy requires explicit human approval. Never deploy on your own.
