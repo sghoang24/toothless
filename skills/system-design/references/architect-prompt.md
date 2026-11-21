@@ -63,8 +63,8 @@ component.
 1. Review the draft against the spec and the roadmap position; drop anything that doesn't trace.
 2. Fold in the answers to its "Open questions" (ask the human for the ones that
    change what gets built).
-3. If the spec has a user interface, dispatch the UI designer subagent
-   ([ui-design-prompt.md](./ui-design-prompt.md)) next (or in parallel) and
-   **reconcile**: the UI's data needs feed back into the interfaces here.
+3. If the spec has a user interface, dispatch the frontend designer subagent
+   ([frontend-design-prompt.md](./frontend-design-prompt.md)) next (or in parallel) and
+   **reconcile**: the screens' data needs feed back into the interfaces here.
 4. The draft becomes the Lavish review artifact — you assemble it; the subagent
    doesn't talk to the user directly.

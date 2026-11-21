@@ -1,32 +1,32 @@
 ---
 name: system-design
-description: "You MUST use this AFTER the spec (and its roadmap) are agreed and BEFORE planning and any implementation. The goal is to orchestrate the Design phase: right-size the design, dispatch an architect (plus a UI designer when a spec has a UI) with crafted context, reconcile them, review via Lavish, then write docs/architecture/architecture.md (+ docs/design/, and a per-feature design.md) and draw diagrams with archify. Designs one feature, or every feature of the current phase in one run, so Phase planning has all its inputs at once. You are not allowed to start coding until the design is agreed. Trigger phrases: system design, architecture, design doc, design the phase, design all features, how should we build this, architecture diagram."
+description: "You MUST use this AFTER the spec (and its roadmap) are agreed and BEFORE planning and any implementation. The goal is to orchestrate the Design phase: right-size the design, dispatch an architect (plus a frontend designer when a spec has a UI) with crafted context, reconcile them, review via Lavish, then write docs/architecture/architecture.md (+ docs/design/, and a per-feature design.md) and draw diagrams with archify. The frontend half runs the full `ui-ux-pro-max` workflow, not a style lookup. Designs one feature, or every feature of the current phase in one run, so Phase planning has all its inputs at once. You are not allowed to start coding until the design is agreed. Trigger phrases: system design, architecture, design doc, design the phase, design all features, how should we build this, architecture diagram, ui design, frontend design, design the UI, mockup, screen design."
 argument-hint: "Optional: a feature folder (specs/001-auth/) or 'phase'. Defaults to the current phase in specs/_state.md."
 ---
 
 # System Design (Design Phase Orchestrator)
 
-Planning decides _in what order_ and _in what slices_; the Design phase decides _how the pieces fit together_ and _what the user sees_. This skill is the **orchestrator** of that phase: it right-sizes the work, dispatches it to subagents (an architect and, when there's a UI, a UI designer), reconciles what comes back, and drives the review to agreement.
+Planning decides _in what order_ and _in what slices_; the Design phase decides _how the pieces fit together_ and _what the user sees_. This skill is the **orchestrator** of that phase: it right-sizes the work, dispatches it to subagents (an architect and, when there's a UI, a frontend designer), reconciles what comes back, and drives the review to agreement.
 
 It sits at **Design** in the workflow: `Brainstorm -> Roadmap -> Design -> Plan -> Development (loop) -> Deploy`. Design runs on the agreed **spec** and its **roadmap** position, and its output is what `planning` then cuts into tasks. It is **self-contained** — run it whenever a spec is agreed and you're about to design the build, whether or not `fight` is driving. Per `AGENTS.md`, no code without an approved spec — and no implementation starts until the design is agreed. Reviewer/implementer sessions read `docs/architecture/architecture.md` and `docs/design/`, not this conversation.
 
-**Orchestrate, don't do it all inline.** The design work is dispatched to fresh subagents with crafted context — the architect gets [references/architect-prompt.md](./references/architect-prompt.md); the UI designer gets [references/ui-design-prompt.md](./references/ui-design-prompt.md). This skill owns the sequencing, the reconciliation between the two designs, the Lavish review, and the write-up. It never hands its own session history to a subagent.
+**Orchestrate, don't do it all inline.** The design work is dispatched to fresh subagents with crafted context — the architect gets [references/architect-prompt.md](./references/architect-prompt.md); the frontend designer gets [references/frontend-design-prompt.md](./references/frontend-design-prompt.md). This skill owns the sequencing, the reconciliation between the two designs, the Lavish review, and the write-up. It never hands its own session history to a subagent.
 
-**Subagents:** Dispatch the system design to the `architect` subagent and, when the spec has a UI, the UI design to the `designer` subagent. Name them explicitly in the delegation request (for example: "Use the `architect` subagent with `references/architect-prompt.md` and this context"). Each gets its prompt file and the crafted context only, never this session's history. If a named subagent is not available, say so and use a general subagent with the same prompt; never design inline.
+**Subagents:** Dispatch the system design to the `architect` subagent and, when the spec has a UI, the frontend design to the `frontend-designer` subagent. Name them explicitly in the delegation request (for example: "Use the `architect` subagent with `references/architect-prompt.md` and this context"). Each gets its prompt file and the crafted context only, never this session's history. If a named subagent is not available, say so and use a general subagent with the same prompt; never design inline.
 
 ## The Model
 
-| Thing            | What it is                                                                    | Where it lives                                                     |
-| ---------------- | ----------------------------------------------------------------------------- | ------------------------------------------------------------------ |
-| **Spec**         | Approved requirements for one feature. The _what_ and _why_.                  | `specs/NNN-slug/spec.md`                                           |
-| **Roadmap**      | Which feature, in which phase, in what order. The _when_.                     | `specs/_roadmap.md`, `specs/_state.md`                             |
-| **Architect**    | Subagent that drafts the system design.                                       | [references/architect-prompt.md](./references/architect-prompt.md) |
-| **UI designer**  | Subagent that designs screens + static mocks (only if the spec has a UI).     | [references/ui-design-prompt.md](./references/ui-design-prompt.md) |
-| **Architecture** | Components, boundaries, data flow, interfaces, decisions. The _how_.          | `docs/architecture/architecture.md`                                |
-| **UI design**    | Screens, flows, states, design system, static mock. The _what the user sees_. | `docs/design/`                                                     |
-| **Diagram**      | A view of the design (component, sequence, ERD, ...) as standalone HTML.      | drawn via the `archify` skill                                      |
+| Thing                 | What it is                                                                                       | Where it lives                                                                 |
+| --------------------- | ------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------ |
+| **Spec**              | Approved requirements for one feature. The _what_ and _why_.                                     | `specs/NNN-slug/spec.md`                                                       |
+| **Roadmap**           | Which feature, in which phase, in what order. The _when_.                                        | `specs/_roadmap.md`, `specs/_state.md`                                         |
+| **Architect**         | Subagent that drafts the system design.                                                          | [references/architect-prompt.md](./references/architect-prompt.md)             |
+| **Frontend designer** | Subagent that designs screens + static mocks, using `ui-ux-pro-max` (only if the spec has a UI). | [references/frontend-design-prompt.md](./references/frontend-design-prompt.md) |
+| **Architecture**      | Components, boundaries, data flow, interfaces, decisions. The _how_.                             | `docs/architecture/architecture.md`                                            |
+| **Frontend design**   | Screens, flows, states, design system, static mock. The _what the user sees_.                    | `docs/design/`                                                                 |
+| **Diagram**           | A view of the design (component, sequence, ERD, ...) as standalone HTML.                         | drawn via the `archify` skill                                                  |
 
-The system design and the UI design are **one design, agreed together**. The screens depend on the interfaces; whatever data a screen needs must exist in a contract. Neither is agreed until they reconcile.
+The system design and the frontend design are **one design, agreed together**. The screens depend on the interfaces; whatever data a screen needs must exist in a contract. Neither is agreed until they reconcile.
 
 The design **consumes** the spec (and the feature's place in the roadmap); it does not re-decide scope, requirements, or order. If design work reveals that a requirement is wrong, stop and send it back — a spec change goes back to `roadmap` (a revision, then gate two). Never quietly redesign around a broken spec.
 
@@ -86,12 +86,13 @@ See [references/design-depth.md](./references/design-depth.md) for the tiers in 
 
 ## Core Rules
 
-- **Orchestrate; don't do the design inline.** Dispatch the architect subagent (and, for a UI, the UI designer subagent) with crafted context from [references/architect-prompt.md](./references/architect-prompt.md) and [references/ui-design-prompt.md](./references/ui-design-prompt.md). You own reconciliation, review, and write-up — never the design drafting itself, and never by sharing your session history. In **phase scope**, that is one architect per feature, dispatched in parallel.
+- **Orchestrate; don't do the design inline.** Dispatch the architect subagent (and, for a UI, the frontend designer subagent) with crafted context from [references/architect-prompt.md](./references/architect-prompt.md) and [references/frontend-design-prompt.md](./references/frontend-design-prompt.md). You own reconciliation, review, and write-up — never the design drafting itself, and never by sharing your session history. In **phase scope**, that is one architect per feature, dispatched in parallel.
 - **Design the seams once.** When several features are designed together, a shared entity, interface, or build target is owned by one feature and referenced by the others through `docs/architecture/architecture.md`. Two features defining the same contract differently is the defect phase scope exists to prevent.
 - **Design from the spec and roadmap, not from the conversation.** Every component, interface, screen, and flow traces to a requirement or a phase goal. If it isn't needed by either, cut it.
 - **Right-size it.** Choose Light / Standard / Deep from the spec's complexity and risk, state the choice, and design to that tier. See [references/design-depth.md](./references/design-depth.md).
 - **Decide the hard-to-reverse things; leave the rest open.** Schema, contracts, and boundaries need a call. Internal naming and file layout do not. Only questions whose answers change what gets built go to the human.
-- **Skip the UI designer when there's no UI.** A CLI without a UI, a headless service, or a data pipeline has no screens — say so and design the system only.
+- **Skip the frontend designer when there's no UI.** A CLI without a UI, a headless service, or a data pipeline has no screens — say so and design the system only.
+- **The frontend design uses `ui-ux-pro-max` as its craft engine — its full workflow.** The designer runs the skill's own path (design system, then domain and stack searches, then its checklist), not a single style lookup. Treat the skill as guidance that shapes the design; it never writes product code, and the mock stays static.
 - **Reconcile the two designs before agreeing either.** Every screen's data need must map to an interface in the system design; feed gaps back before either is agreed.
 - **No business logic in interface/controller layers.** Per `AGENTS.md`, logic lives in the service layer; the design must reflect that.
 - **The design is a proposal until the user agrees.** Always show it as a Lavish mock-review and wait for feedback before writing anything down as final.
@@ -106,11 +107,11 @@ See [references/design-depth.md](./references/design-depth.md) for the tiers in 
 
 **Phase scope:** read `specs/_state.md` for `current_phase`, the phase's feature rows in `specs/_roadmap.md`, and every feature's `spec.md`. Exclude (and report) any feature whose spec is not `status: approved`.
 
-In both scopes: list the requirements the design must make buildable, and the phase/dependency constraints. Read any existing `docs/architecture/architecture.md`, ADRs, and `docs/design/` so you extend, not duplicate. Decide: **does this scope have a user-facing surface?** That answer gates whether the UI designer runs.
+In both scopes: list the requirements the design must make buildable, and the phase/dependency constraints. Read any existing `docs/architecture/architecture.md`, ADRs, and `docs/design/` so you extend, not duplicate. Decide: **does this scope have a user-facing surface?** That answer gates whether the frontend designer runs.
 
 ### 2. Pick the tier
 
-From the spec's size, risk, and blast radius, choose **Light / Standard / Deep** and write one line saying which and why. If you're unsure, take the smaller tier. The same tier guides both the system design and the UI design depth. See [references/design-depth.md](./references/design-depth.md).
+From the spec's size, risk, and blast radius, choose **Light / Standard / Deep** and write one line saying which and why. If you're unsure, take the smaller tier. The same tier guides both the system design and the frontend design depth. See [references/design-depth.md](./references/design-depth.md).
 
 ### 3. Work the design questions
 
@@ -120,7 +121,7 @@ Ask only what the spec and project don't already answer — the questions whose 
 
 Batch [references/architect-prompt.md](./references/architect-prompt.md) and dispatch **one architect subagent per feature** — in parallel in phase scope, with the features it depends on already designed (pass the earlier feature's design as `Existing architecture to extend`).
 
-**If this scope has a UI**, also fill [references/ui-design-prompt.md](./references/ui-design-prompt.md) and dispatch the **UI designer** subagent. When the screens and the interfaces can be designed independently, dispatch both **in parallel** — then reconcile. The UI designer uses the `ui-ux-pro-max` skill for the visual direction **if it's installed**, and falls back to plain design reasoning if not; it produces static HTML mocks and no product code.
+**If this scope has a UI**, also fill [references/frontend-design-prompt.md](./references/frontend-design-prompt.md) and dispatch the **frontend designer** subagent. When the screens and the interfaces can be designed independently, dispatch both **in parallel** — then reconcile. The frontend designer runs the **full `ui-ux-pro-max` workflow** (design system, then domain and stack searches, then its own checklist) when it's installed, and falls back to plain design reasoning if not; it produces static HTML mocks and no product code.
 
 Each subagent gets crafted context — the spec, the roadmap position, the existing design, and the answered decisions — never your session history.
 
@@ -181,29 +182,30 @@ docs/
 
 ## Red Flags
 
-| Thought                                               | Reality                                                                                                                               |
-| ----------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
-| "I'll design it all inline, dispatching is slow"      | Orchestrate. Dispatch the architect and the UI designer; you own reconciliation and review.                                           |
-| "I'll paste my session history into the subagent"     | Crafted context only — spec, roadmap, existing design, answered decisions. Never your history.                                        |
-| "I'll design it thoroughly like last time"            | Depth is a dial. Right-size to _this_ spec; over-design is a defect, not diligence.                                                   |
-| "Let me add a service/queue/layer for later"          | No speculative abstraction. Design what the spec needs, nothing more.                                                                 |
-| "It's a UI spec, but the architect covers it"         | System design is _how it fits_; the user still needs _what they see_. Dispatch the UI designer.                                       |
-| "No UI, but I'll design screens anyway"               | A CLI/headless service has no screens. Skip the UI designer and say so.                                                               |
-| "UI and system design can be agreed separately"       | Reconcile them: every screen's data need maps to a contract. Agree them together.                                                     |
-| "The mock is a prototype, I'll wire it up"            | No product code in Design. The mock is static and throwaway.                                                                          |
-| "I don't need to show the user, it's clearly good"    | Every design goes through the Lavish mock-review. It's not optional.                                                                  |
-| "I opened the Lavish artifact, so we're reviewing"    | Opened ≠ listening. Run `lavish-axi poll` (foreground) and keep it alive, or the browser says "your agent is not listening".          |
-| "I handled the feedback, so I'm done"                 | Handled ≠ replied. Run `lavish-axi reply` (or re-poll with `--agent-reply`) or the board sticks on `Working` and the notes stay open. |
-| "They said it looks good, so I'll start coding"       | Shown ≠ agreed, and agreed design ≠ approval to build. Wait for the gate.                                                             |
-| "The spec is vague here, I'll design around it"       | Send it back. A spec change goes back to `roadmap` (a new revision, gate two again).                                                  |
-| "I'll put the logic in the controller, it's faster"   | `AGENTS.md`: business logic lives in the service layer. The design must reflect that.                                                 |
-| "I'll overwrite docs/architecture/architecture.md"    | Extend it. Merge the new design with what's there.                                                                                    |
-| "I'll draw every diagram type to be safe"             | Draw the views this design needs at its tier — not one of each.                                                                       |
-| "I'll design one feature and let the phase wait"      | Phase scope designs them together — one pass, one review, and the cross-feature seams checked once.                                   |
-| "Two features can each define the shared contract"    | One owner per entity, interface, and build target. Two definitions of one contract is the defect phase scope exists to catch.         |
-| "It's a phase, so everything is Deep"                 | Scope decides how many; the tier decides how much. A Light feature in a Deep phase stays Light.                                       |
-| "A feature has no design yet, so planning must wait"  | `planning` can cut tasks from the criteria alone. Design buys precision, not permission.                                              |
-| "I'll design the feature whose spec is still a draft" | Exclude it and report it. A draft spec has no approved meaning to design against.                                                     |
+| Thought                                               | Reality                                                                                                                                 |
+| ----------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
+| "I'll design it all inline, dispatching is slow"      | Orchestrate. Dispatch the architect and the frontend designer; you own reconciliation and review.                                       |
+| "I'll paste my session history into the subagent"     | Crafted context only — spec, roadmap, existing design, answered decisions. Never your history.                                          |
+| "I'll design it thoroughly like last time"            | Depth is a dial. Right-size to _this_ spec; over-design is a defect, not diligence.                                                     |
+| "Let me add a service/queue/layer for later"          | No speculative abstraction. Design what the spec needs, nothing more.                                                                   |
+| "It's a UI spec, but the architect covers it"         | System design is _how it fits_; the user still needs _what they see_. Dispatch the frontend designer.                                   |
+| "One `--design-system` lookup is enough for the UI"   | The craft comes from the skill's full workflow — domain and stack searches, then its checklist. A style lookup produces a generic mock. |
+| "No UI, but I'll design screens anyway"               | A CLI/headless service has no screens. Skip the frontend designer and say so.                                                           |
+| "UI and system design can be agreed separately"       | Reconcile them: every screen's data need maps to a contract. Agree them together.                                                       |
+| "The mock is a prototype, I'll wire it up"            | No product code in Design. The mock is static and throwaway.                                                                            |
+| "I don't need to show the user, it's clearly good"    | Every design goes through the Lavish mock-review. It's not optional.                                                                    |
+| "I opened the Lavish artifact, so we're reviewing"    | Opened ≠ listening. Run `lavish-axi poll` (foreground) and keep it alive, or the browser says "your agent is not listening".            |
+| "I handled the feedback, so I'm done"                 | Handled ≠ replied. Run `lavish-axi reply` (or re-poll with `--agent-reply`) or the board sticks on `Working` and the notes stay open.   |
+| "They said it looks good, so I'll start coding"       | Shown ≠ agreed, and agreed design ≠ approval to build. Wait for the gate.                                                               |
+| "The spec is vague here, I'll design around it"       | Send it back. A spec change goes back to `roadmap` (a new revision, gate two again).                                                    |
+| "I'll put the logic in the controller, it's faster"   | `AGENTS.md`: business logic lives in the service layer. The design must reflect that.                                                   |
+| "I'll overwrite docs/architecture/architecture.md"    | Extend it. Merge the new design with what's there.                                                                                      |
+| "I'll draw every diagram type to be safe"             | Draw the views this design needs at its tier — not one of each.                                                                         |
+| "I'll design one feature and let the phase wait"      | Phase scope designs them together — one pass, one review, and the cross-feature seams checked once.                                     |
+| "Two features can each define the shared contract"    | One owner per entity, interface, and build target. Two definitions of one contract is the defect phase scope exists to catch.           |
+| "It's a phase, so everything is Deep"                 | Scope decides how many; the tier decides how much. A Light feature in a Deep phase stays Light.                                         |
+| "A feature has no design yet, so planning must wait"  | `planning` can cut tasks from the criteria alone. Design buys precision, not permission.                                                |
+| "I'll design the feature whose spec is still a draft" | Exclude it and report it. A draft spec has no approved meaning to design against.                                                       |
 
 ## Completion Check
 
@@ -212,8 +214,8 @@ You are done when ALL are true:
 - [ ] Design traces to the approved spec (`specs/NNN-slug/spec.md`, `status: approved`) and its roadmap position; no invented scope or order.
 - [ ] The scope is stated (one feature or the current phase); in phase scope, every feature in it was designed together, and any excluded feature was reported with the reason.
 - [ ] A tier (Light / Standard / Deep) is chosen **per feature** and stated, and each design matches it — nothing over-built.
-- [ ] The architect subagent was dispatched with crafted context (not this session's history); the UI designer too when the spec has a UI.
-- [ ] If there's no UI, the UI designer was skipped and that was stated.
+- [ ] The architect subagent was dispatched with crafted context (not this session's history); the frontend designer too when the spec has a UI, running the full `ui-ux-pro-max` workflow (or plain design reasoning, and it was said which).
+- [ ] If there's no UI, the frontend designer was skipped and that was stated.
 - [ ] The two designs were reconciled: every screen's data need maps to an interface. In phase scope, also reconciled **across** features: one owner per shared entity, interface, and build target.
 - [ ] Business logic is placed in the service layer, per `AGENTS.md`.
 - [ ] The design was shown as a Lavish artifact (system design + a UI mock when there's a UI) and the user's feedback was folded in (the poll was kept alive until they answered, and you replied so the board isn't stuck on `Working`).

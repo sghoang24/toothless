@@ -44,7 +44,7 @@ The step names are the shared vocabulary across the pack. Other skills say "back
 - An approved task list exists (`specs/NNN-slug/tasks.md`), the design is agreed, and there is at least one unbuilt task.
 - You are about to build a feature's tasks and want the loop run honestly.
 
-**Do NOT use** to decide what to build (`brainstorming`), slice features into phases (`roadmap`), design the system (`system-design`), cut a feature into tasks (`planning`), settle the test strategy (`test-strategy`), or land the branch (`finishing-a-development-branch` — the loop exits into it). Do not use it for a single task with no feature context; that is still the loop, but say so and run one cycle.
+**Do NOT use** to decide what to build (`brainstorming`), slice features into phases (`roadmap`), design the system (`system-design`), cut a feature into tasks (`planning`), settle the test strategy (`test-strategy`), or land the branch (`closing-a-phase` — the loop exits into it). Do not use it for a single task with no feature context; that is still the loop, but say so and run one cycle.
 
 ## Core Rules
 
@@ -58,7 +58,7 @@ The loop's rules live here — one source of truth for the gate.
 - **Review is bounded and read-only.** Diff-scoped, one pass, stop rule, no mutation of the checkout, no suite runs on it, no recursive dispatch. An oversized or out-of-scope diff is sent back to `implement`, not reviewed.
 - **A blocked unit is not a stalled feature.** If a unit trips the cap, park it with a written ruling, note it, and continue with the next unit rather than stopping the whole feature.
 - **Artifacts are files, not pasted text.** Hand the implementer a brief file and take back a report file. Never paste the session's history into a dispatch.
-- **No branch without approval to land.** The loop ends at a clean, reviewed, verified branch; `finishing-a-development-branch` raises the MR/PR, and merging needs explicit human approval.
+- **No branch without approval to land.** The loop ends at a clean, reviewed, verified branch; `closing-a-phase` raises the MR/PR (and closes the phase when it's the last feature), and merging needs explicit human approval.
 
 ## Batching
 
@@ -119,11 +119,11 @@ Increment `cycle` in `specs/NNN-slug/status.md` **only when a unit is sent back*
 
 ### 5. Run the final review
 
-After **every** unit is done, run the whole-branch review (`references/final-review.md`). Per-unit reviews judge each diff in isolation; the final review judges the branch as a whole — the seams between units, the feature against its spec, and anything that only shows up once the units sit together. Fix what it finds in a single wave, then hand to `finishing-a-development-branch`.
+After **every** unit is done, run the whole-branch review (`references/final-review.md`). Per-unit reviews judge each diff in isolation; the final review judges the branch as a whole — the seams between units, the feature against its spec, and anything that only shows up once the units sit together. Fix what it finds in a single wave, then hand to `closing-a-phase`.
 
 ### 6. Exit the loop
 
-The loop is done when every unit is done or parked-with-ruling and the final review is clean. Then `finishing-a-development-branch` lands the branch: it raises the MR/PR for the human — merging needs explicit human approval — appends the ledger row, and cleans up the worktree. Then `deploy`, at the milestone.
+The loop is done when every unit is done or parked-with-ruling and the final review is clean. Then `closing-a-phase` lands the branch: it raises the MR/PR for the human — merging needs explicit human approval — appends the ledger row, and cleans up the worktree. Then `deploy`, at the milestone.
 
 One feature = one branch = one PR, so there is exactly **one** landing per feature, after the final review — not one per unit.
 
@@ -158,4 +158,4 @@ The loop is trustworthy when ALL are true:
 - [ ] Any batch met every guard (same shape, independent, behavior-free, one review surface, small together); no big or ambiguous member was hidden in one.
 - [ ] The final whole-branch review ran after the last unit, and its findings were fixed or parked-with-ruling.
 - [ ] `specs/NNN-slug/status.md` reflects the current unit, cycle, and next pointer; the ledger row was appended on landing.
-- [ ] The loop exited into `finishing-a-development-branch` once, for the whole feature; nothing merged or deployed without explicit human approval.
+- [ ] The loop exited into `closing-a-phase` once, for the whole feature; nothing merged or deployed without explicit human approval.

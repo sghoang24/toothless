@@ -33,7 +33,7 @@ Per `AGENTS.md`, one feature = one branch = one PR. When several features are re
 - **Create the branch first** (or let the worktree create it), named `feat/NNN-slug` per `AGENTS.md`.
 - **Verify a clean baseline.** Run the project's setup and its test command in the new worktree before starting — a red baseline you didn't cause goes in your report by name.
 - **Never force-remove a worktree with uncommitted work.** If it has changes, stop and ask; it may be the user's in-progress work.
-- **Clean up when the branch is done.** Once the branch is landed or discarded (`finishing-a-development-branch`), remove its worktree (this skill owns that clean-up).
+- **Clean up when the branch is done.** Once the branch is landed or discarded (`closing-a-phase`), remove its worktree (this skill owns that clean-up).
 
 ## Procedure
 
