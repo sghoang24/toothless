@@ -29,7 +29,7 @@ Deploy ships **the proven candidate**, not a fresh build. If what you deploy isn
 - A milestone/release is done: e2e green, tests green, branches landed (via the MR, on approval).
 - The human explicitly says to deploy, ship, release, or go live.
 
-**Do NOT use** on your own initiative, without explicit approval, or before the preconditions are met. Do NOT use to _prove_ the product (that's `e2e-testing`) or to merge a branch (that's `finishing-a-development-branch`). Deploy is the step after those, and only on the human's word.
+**Do NOT use** on your own initiative, without explicit approval, or before the preconditions are met. Do NOT use to _prove_ the product (that's `e2e-testing`) or to merge a branch (that's `closing-a-phase`). Deploy is the step after those, and only on the human's word.
 
 ## Core Rules
 
@@ -71,7 +71,7 @@ Return to the last good version with the pre-written step. Confirm the live syst
 
 ### 7. Record and report
 
-Tag the release. When the milestone closes, append the shipped PRs to `specs/_status.md` and **report the evidence to the human** — the phase itself is closed by `finishing-a-development-branch` at its release gate, never here; do not edit `_roadmap.md` or `_state.md`. Report to the human: the deployed version, the evidence (smoke results, signals watched), on whose approval, and what's next.
+Tag the release. When the milestone closes, append the shipped PRs to `specs/_status.md` and **report the evidence to the human** — the phase itself is closed by `closing-a-phase` at its release gate, never here; do not edit `_roadmap.md` or `_state.md`. Report to the human: the deployed version, the evidence (smoke results, signals watched), on whose approval, and what's next.
 
 ## Red Flags
 

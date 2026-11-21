@@ -34,7 +34,7 @@ Exit criteria:
 - <verifiable>
   Release gate:
 - [ ] <checks for this phase>
-                  Features:
+                      Features:
 - 003-<slug> — <one line> — covers: FR-2 — depends_on: 002
 - 004-<slug> — <one line> — covers: FR-3 — depends_on: 003
 
@@ -192,7 +192,7 @@ updated: YYYY-MM-DD
 ```
 
 `roadmap` creates it (create / revise / replan). One other skill updates it, and only one thing: when
-`finishing-a-development-branch` closes a phase and advances the cursor, it rewrites `current_phase`,
+`closing-a-phase` closes a phase and advances the cursor, it rewrites `current_phase`,
 `phase_status`, and `current_feature`. No other skill writes this file.
 
 ## specs/\_status.md (project PR ledger)
@@ -214,7 +214,7 @@ Updated: YYYY-MM-DD
 | #3  | P1    | 003-price-alerts     | T3   | Binance ingestion + watchlist |
 ```
 
-- **Created by `roadmap`** (header + empty table), **appended by `finishing-a-development-branch`**
+- **Created by `roadmap`** (header + empty table), **appended by `closing-a-phase`**
   when a branch lands, and by `deploy` when a phase ships.
 - One row per landing. If a feature spans several PRs, it gets several rows; if several tasks land
   in one PR, list the tasks in the Note.
@@ -250,8 +250,8 @@ see _Ensure, don't assume_ below.
 | File          | Created by                                                                                 | Updated by                                                                                                                                                       |
 | ------------- | ------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `_roadmap.md` | `roadmap`                                                                                  | `roadmap` (replan / revise); the user approves                                                                                                                   |
-| `_state.md`   | `roadmap`                                                                                  | `roadmap`, and `finishing-a-development-branch` when it closes a phase                                                                                           |
-| `_status.md`  | `roadmap`                                                                                  | `finishing-a-development-branch` (each landing), `deploy` (phase ship)                                                                                           |
+| `_state.md`   | `roadmap`                                                                                  | `roadmap`, and `closing-a-phase` when it closes a phase                                                                                                          |
+| `_status.md`  | `roadmap`                                                                                  | `closing-a-phase` (each landing), `deploy` (phase ship)                                                                                                          |
 | `spec.md`     | `roadmap` — via the **spec-writer subagent**, one per phase; gate-two approval by the user | `roadmap` (revision: delta only, then gate two again)                                                                                                            |
 | `status.md`   | `roadmap`; a consumer may create a missing one (see _Ensure, don't assume_)                | `system-design`, `planning`, `development-loop` (`status`, `current_unit`, `next`, `notes`); only the loop increments `cycle`, and only when a unit is sent back |
 
@@ -276,11 +276,11 @@ feature's `status.md`, it ensures one exists: create it from the feature's `_roa
 (`status: todo`, `current_unit: null`, `cycle: 0`, `cycle_cap: 3`, `next: design`) and **say it was
 missing** — a silent create hides a roadmap run that stopped early.
 
-| Skill                            | Ensures for                                      |
-| -------------------------------- | ------------------------------------------------ |
-| `planning` (phase mode)          | every feature of the phase, before cutting tasks |
-| `development-loop`               | the feature it is about to build                 |
-| `finishing-a-development-branch` | every feature of the phase it just opened        |
+| Skill                   | Ensures for                                      |
+| ----------------------- | ------------------------------------------------ |
+| `planning` (phase mode) | every feature of the phase, before cutting tasks |
+| `development-loop`      | the feature it is about to build                 |
+| `closing-a-phase`       | every feature of the phase it just opened        |
 
 Creating one is always safe: the content is derived, never invented, so two skills creating the same
 file produce the same file.
@@ -288,7 +288,7 @@ file produce the same file.
 ## Release gate
 
 When every feature in the phase is `done`, the phase is closed by
-**`finishing-a-development-branch`** — the skill that lands the last feature's branch already holds the
+**`closing-a-phase`** — the skill that lands the last feature's branch already holds the
 evidence, so it is the only place a phase becomes `done`. It verifies the exit criteria against that
 evidence, walks this checklist with the human, records the Phase log, flips the phase status, creates
 the next phase's `status.md` files, and updates `_state.md`. Never deploy or tick the gate without

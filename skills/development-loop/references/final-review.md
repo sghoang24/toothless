@@ -7,7 +7,7 @@ Run it in a fresh session, like any review. The reviewer reads the **whole branc
 ## When to Run
 
 - Every unit in `tasks.md` is done or parked-with-ruling.
-- Before handing to `finishing-a-development-branch`.
+- Before handing to `closing-a-phase`.
 
 Not before. A final review over a half-built feature reviews a moving target and re-runs after every unit.
 
@@ -37,7 +37,7 @@ Look specifically for:
 4. **Walk the axes at feature scale.** Requirements → every acceptance criterion, once, end to end. Architecture → the feature's shape, not one diff's. Clean code → consistency across the whole change.
 5. **A single fix wave.** Collect all findings, then fix them in **one** pass — not a unit-by-unit re-entry. A final review that turns into another loop has found a structural problem, not a list of fixes.
 6. **Route the outcome**, exactly as a per-unit review does: code → `implement`; task list → `planning`; design → `system-design`; requirement → `roadmap` (a new spec revision, then gate two again), or `brainstorming` if the PRD itself is wrong.
-7. **Hand to `finishing-a-development-branch`** when the final review is clean (or Minor-only).
+7. **Hand to `closing-a-phase`** when the final review is clean (or Minor-only).
 
 ## Report
 
@@ -66,4 +66,4 @@ Write it to `specs/NNN-slug/review-final.md`, same shape as a unit review (`refe
 - [ ] Every acceptance criterion in `spec.md` walked against the branch.
 - [ ] Seams, batch drift, accumulated drift, and cross-cutting gaps checked.
 - [ ] Findings fixed in a single wave, or parked-with-ruling and the human told.
-- [ ] `review-final.md` written; the branch handed to `finishing-a-development-branch` only when clean.
+- [ ] `review-final.md` written; the branch handed to `closing-a-phase` only when clean.

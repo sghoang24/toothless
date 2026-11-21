@@ -116,7 +116,7 @@ A **consumer** that needs a `status.md` and finds none creates it from the featu
 5. **Adjust later phases:** reorder, split, add, or drop features. Explain every change in one line each. For a change that alters later phases, get the user's approval in one message.
 6. **Mid-phase change requests:** add a feature to the current phase only if it is needed to meet its exit criteria; otherwise put it in a later phase or the backlog section.
 7. **Re-validate the next phase's specs, then advance.** A phase's specs were written when it was planned, and the roadmap has moved since. Before the phase becomes current, diff each `specs/NNN-slug/spec.md` of that phase against `_roadmap.md` (feature renamed, split, merged, or dropped?) and against the current PRD (a `FR-n`/`NFR-n` it `covers` changed?). Matching specs keep their revision and are marked `status: approved`. Drifting ones get the delta only — the changed acceptance criteria — as a new `Revision:` line with a change log, then go back through gate two. A feature the replan add or recut has no spec yet: dispatch a spec writer for that phase (step 6a) and review it (6b).
-8. **Hand back, do not advance.** Replan never flips a phase to `done` and never opens the next one — **`finishing-a-development-branch`** owns that, because it holds the last landing's evidence and the release gate. When the plan changed, say what changed, then hand the phase's first ready feature back to `system-design` (on its own, name that step in one line and stop). If the phase is finished and only needs closing, say so and stop — closing is `finishing`'s job.
+8. **Hand back, do not advance.** Replan never flips a phase to `done` and never opens the next one — **`closing-a-phase`** owns that, because it holds the last landing's evidence and the release gate. When the plan changed, say what changed, then hand the phase's first ready feature back to `system-design` (on its own, name that step in one line and stop). If the phase is finished and only needs closing, say so and stop — closing is `closing-a-phase`'s job.
 
 If a feature is `blocked` because its spec or the PRD was wrong, send the user to `brainstorming` (project mode when the PRD changes; otherwise fix the spec here through the spec writer), then come back here to replan.
 
@@ -154,22 +154,22 @@ The order a feature moves through: `design` → `plan` → `development-loop` (`
 
 ## Red Flags
 
-| Thought                                             | Reality                                                                                                |
-| --------------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
-| "I'll create folders for every phase now"           | Specs exist for every phase; `status.md` is for the current phase only.                                |
-| "I'll split by layer: DB, then API, then UI"        | Nothing runs until the end. Slice vertically.                                                          |
-| "I'll write the specs myself while I'm here"        | Dispatch a spec writer per phase. You own the gates and the checks, not the drafting.                  |
-| "The roadmap is approved, so the specs can wait"    | Gate one approves the slicing; gate two approves the specs. No design starts until gate two.           |
-| "I'll skip the Lavish review, it's clearly right"   | Both gates are Lavish reviews. A gate you did not run is a gate you did not pass.                      |
-| "The specs for later phases might drift, fine"      | Re-validate them at replan (step 7). A stale spec goes back through gate two, delta only.              |
-| "I'll write a new dated spec file for the change"   | Bump `Revision:` in `spec.md`. A second current spec means half the readers pick the wrong one.        |
-| "The feature already shipped, I'll edit its spec"   | A follow-up feature instead. The shipped spec is the record of what was agreed then.                   |
-| "It's one AC, I'll skip gate two on the revision"   | One AC changes what "done" means. Gate two is cheap; a wrong AC costs a whole loop.                    |
-| "Only wording moved, the design still fits"         | Check interface, data model, screen. If any moved, re-validate the design delta.                       |
-| "The phase's features all merged, so I'll close it" | `finishing-a-development-branch` closes a phase — exit criteria with evidence, then your explicit yes. |
-| "The phase probably met its exit criteria"          | Verify, or ask.                                                                                        |
-| "The PRD has no IDs, I'll skip coverage"            | Add IDs, then check coverage.                                                                          |
-| "The roadmap is approved, so I'm done"              | Approval starts step 6. Without the specs and 6c's files the run is incomplete.                        |
+| Thought                                             | Reality                                                                                         |
+| --------------------------------------------------- | ----------------------------------------------------------------------------------------------- |
+| "I'll create folders for every phase now"           | Specs exist for every phase; `status.md` is for the current phase only.                         |
+| "I'll split by layer: DB, then API, then UI"        | Nothing runs until the end. Slice vertically.                                                   |
+| "I'll write the specs myself while I'm here"        | Dispatch a spec writer per phase. You own the gates and the checks, not the drafting.           |
+| "The roadmap is approved, so the specs can wait"    | Gate one approves the slicing; gate two approves the specs. No design starts until gate two.    |
+| "I'll skip the Lavish review, it's clearly right"   | Both gates are Lavish reviews. A gate you did not run is a gate you did not pass.               |
+| "The specs for later phases might drift, fine"      | Re-validate them at replan (step 7). A stale spec goes back through gate two, delta only.       |
+| "I'll write a new dated spec file for the change"   | Bump `Revision:` in `spec.md`. A second current spec means half the readers pick the wrong one. |
+| "The feature already shipped, I'll edit its spec"   | A follow-up feature instead. The shipped spec is the record of what was agreed then.            |
+| "It's one AC, I'll skip gate two on the revision"   | One AC changes what "done" means. Gate two is cheap; a wrong AC costs a whole loop.             |
+| "Only wording moved, the design still fits"         | Check interface, data model, screen. If any moved, re-validate the design delta.                |
+| "The phase's features all merged, so I'll close it" | `closing-a-phase` closes a phase — exit criteria with evidence, then your explicit yes.         |
+| "The phase probably met its exit criteria"          | Verify, or ask.                                                                                 |
+| "The PRD has no IDs, I'll skip coverage"            | Add IDs, then check coverage.                                                                   |
+| "The roadmap is approved, so I'm done"              | Approval starts step 6. Without the specs and 6c's files the run is incomplete.                 |
 
 ## Completion Check
 
@@ -188,6 +188,6 @@ The order a feature moves through: `design` → `plan` → `development-loop` (`
 
 **Revise mode** is complete when: the change was routed by feature state (`todo`/`doing` → revise; `done` → follow-up feature; PRD wrong → project mode); `spec.md` was rewritten as a stand-alone document with a bumped `Revision:` and a `NEW`/`CHANGED`/`UNCHANGED` change log; AC IDs stayed stable; gate two approved the changed criteria and `status` is back to `approved`; and a design touching an interface, data model, or screen sent the feature to `next: design`. No second dated spec file was created.
 
-**No mode here closes a phase.** Marking a phase `done` and opening the next one is `finishing-a-development-branch`'s step 6, after the human approves the release gate.
+**No mode here closes a phase.** Marking a phase `done` and opening the next one is `closing-a-phase`'s step 6, after the human approves the release gate.
 
 Missing `spec.md` for any feature, or `_state.md` / `_status.md`, or a `status.md` for a **current-phase** feature, means the run stopped early: finish step 6 before reporting anything as done.

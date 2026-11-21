@@ -116,7 +116,7 @@ done`, `current_unit`, `cycle`, `cycle_cap`, and a one-line `next`. Nothing in i
   the roadmap. `roadmap` creates it for the current phase; any consumer that finds it missing
   creates it from the roadmap row and says so. Only
   `development-loop` increments `cycle`, and only when a unit is sent back (the cap is per unit — a task, or a batch of small same-shape tasks).
-- **A phase is closed by `finishing-a-development-branch`**, when its last feature lands: it verifies
+- **A phase is closed by `closing-a-phase`**, when its last feature lands: it verifies
   the exit criteria, takes the human's explicit release-gate approval, flips the phase status, creates
   the next phase's `status.md` files, and updates `_state.md`. `roadmap` never closes a phase.
 
