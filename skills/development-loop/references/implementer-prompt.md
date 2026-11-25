@@ -50,8 +50,8 @@ dependency, an assumption — ask now, before writing code. Do not guess.
    declared test command once before committing — not after every edit.
 4. Commit in small Conventional Commits (feat:, fix:, test:, chore:).
 5. Self-review your own diff (below) and fix what you find.
-6. Write your full report to {REPORT_FILE}, then reply with the short status
-   contract only.
+6. Fill the four-lens gate (below), then write your full report to {REPORT_FILE}
+   and reply with the short status only.
 
 While you work, run the focused test for what you are changing. If something
 unexpected comes up, ask — it is always OK to pause and clarify.
@@ -86,6 +86,19 @@ member. It should have been dispatched on its own.
   logging.
 - Unrelated cleanup is out of scope. Note it in the report; do not do it.
 
+## The four-lens gate
+
+Fill one row per lens with **evidence**, not an adjective:
+
+| Lens     | `green` means                                                                 |
+| -------- | ----------------------------------------------------------------------------- |
+| code     | the test that covers the behavior, and where it lives (file:line)              |
+| security | the trust boundary this diff touches and how it is handled — or `n/a: no trust boundary` |
+| ui       | the screen/state changed and its `docs/design/` reference — or `n/a: no user-facing surface` |
+| ux       | the flow/state walked and the message shown — or `n/a` with the reason         |
+
+`n/a` is a complete answer when it names why. A `green` row without evidence is not green — leave it `open` and say what is missing. Do not invent work to fill a row. Security here is **the diff**, not the audit.
+
 ## Before reporting: self-review
 
 Read your diff with fresh eyes. Completeness: everything in the brief, no more?
@@ -103,6 +116,9 @@ Write the full report to {REPORT_FILE}:
   no RED: give the baseline green you started from and the green you ended on.)
 - The full-suite command and result; every failure named, including pre-existing
 - Files changed and the diff size
+- **The four-lens gate table** — one row per lens, `green` with evidence or `n/a` with the reason:
+  code → the test covering it (file:line); security → the trust boundary touched, or `n/a: no trust boundary`;
+  ui → screen/state + its `docs/design/` reference, or `n/a: no user-facing surface`; ux → flow/state walked, or `n/a`. A row without evidence is not green.
 - **For a batch:** one line per member — its ID, its file, and the change made
 - Self-review findings, and any concerns
 

@@ -8,7 +8,7 @@ argument-hint: "Optional: a feature folder (specs/003-upload-invoice) or a phase
 
 Plans **one feature**, or **every feature of the current phase** in one run. `brainstorming` decided what and why, `roadmap` decided which features and in what phases, `system-design` decided the shape of the solution. Planning decides **in what order, in what slices**: a task list a builder can execute without re-reading the conversation.
 
-Workflow position: `brainstorming` → `roadmap` → `system-design` → **`planning`** (with `test-strategy`) → `development-loop` (`implement -> verify -> review`, per unit). It also works standalone on any approved spec; it never depends on the other skills being present.
+Workflow position: `brainstorming` → `roadmap` → `system-design` → **`planning`** (+ `test-strategy`) → `development-loop` (`implement -> review` per unit). It also works standalone on any approved spec; it never depends on other skills being present.
 
 What this skill does **not** do: group features into phases (that is `roadmap`), make design decisions (that is `system-design`), or write code.
 
@@ -105,7 +105,7 @@ When `spec.md`'s `revision` is newer than what the tasks were planned from, read
 
 ### 6. Handle re-entry from review
 
-Read `review.md`. Add fix tasks for what is missing, strike through tasks that were wrong, leave finished tasks alone. If the problem is the design, send it back to `system-design`. If the problem is the requirement, send it back to `roadmap` (a new spec revision, then gate two again) — never patch the spec here.
+Read `review.md` (the feature-level roll-up) and any `unit-<N>-review.md` it points at. Add fix tasks for what is missing, strike through tasks that were wrong, leave finished tasks alone. If the problem is the design, send it back to `system-design`. If the problem is the requirement, send it back to `roadmap` (a new spec revision, then gate two again) — never patch the spec here.
 
 ### 7. Write and sync
 

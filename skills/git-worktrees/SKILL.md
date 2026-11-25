@@ -57,7 +57,7 @@ In the new worktree, install dependencies and run the project's declared test co
 
 ### 4. Work
 
-Hand the worktree to the loop — `implement -> verify -> review` (`development-loop`). Whoever is coordinating keeps the main tree clean while this runs.
+Hand the worktree to the loop — `implement -> review` (`development-loop`). Whoever is coordinating keeps the main tree clean while this runs.
 
 ### 5. Clean up
 

@@ -34,7 +34,7 @@ Exit criteria:
 - <verifiable>
   Release gate:
 - [ ] <checks for this phase>
-                      Features:
+                          Features:
 - 003-<slug> — <one line> — covers: FR-2 — depends_on: 002
 - 004-<slug> — <one line> — covers: FR-3 — depends_on: 003
 
@@ -258,7 +258,7 @@ see _Ensure, don't assume_ below.
 ## Status meanings
 
 - `todo`: not started.
-- `doing`: started. The step is not recorded; infer it from the feature folder (`spec.md` `status: approved` → spec done, `design.md` → design done, ticked boxes in `tasks.md` → implementation progress, `review.md` with open blockers → in review).
+- `doing`: started. The step is not recorded; infer it from the feature folder (`spec.md` `status: approved` → spec done, `design.md` → design done, ticked boxes in `tasks.md` → implementation progress, `review.md` or a `unit-<N>-review.md` with open blockers → in review).
 - `blocked`: stopped, needs the user (for example a task parked past `cycle_cap`, or an unmet dependency). The loop keeps going with the next task when only one is stuck.
 - `done`: merged and reviewed. Deploy happens at the phase release gate.
 

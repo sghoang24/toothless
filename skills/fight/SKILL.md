@@ -75,7 +75,7 @@ Brainstorm -> Roadmap -> Design -> Plan (incl. test-strategy) -> Development (lo
 | Land        | `closing-a-phase`              | The MR/PR is raised for the human — or merged on explicit approval — the worktree cleaned up, and, when it was the phase's last feature, **the phase closed** and the next one opened      |
 | Deploy      | `deploy`                       | Human approved the deploy                                                                                                                                                                  |
 
-**The Development phase is the loop `implement -> verify -> review`, run per unit — usually one task, or a batch of small same-shape tasks.** Its single source of truth is `development-loop` — the cycle cap, the transitions, the subagent contracts, and the final whole-branch review live there, not here. Inside the loop, `implement` builds the unit test-first following the feature's strategy (settled once in Plan by `test-strategy`), `verify` holds the fresh-evidence gate, and `review` judges the diff in a fresh session. `test-strategy` itself is **not** a loop step — it runs once per feature, inside Plan.
+**The Development phase is the loop `implement -> review`, run per unit — usually one task, or a batch of small same-shape tasks.** Its single source of truth is `development-loop` — the cycle cap, the transitions, the subagent contracts, and the final whole-branch review live there, not here. Inside the loop, `implement` builds the unit test-first following the feature's strategy (settled once in Plan by `test-strategy`) and fills the four-lens gate (code, security, ui, ux) with evidence, then `review` confirms or flips each lens in a fresh session and returns one verdict — the worst lens. `test-strategy` itself is **not** a loop step — it runs once per feature, inside Plan.
 
 **Gates (hard):**
 
@@ -123,7 +123,7 @@ Qualifies when ALL are true:
 - The human has stated the intended outcome (so the spec and design gates are satisfied by their instruction).
 - It touches one concern, stays under ~300 lines, and needs no new dependency, schema, or interface.
 
-On the fast-path: skip Roadmap, Design, and Plan; still **write the test first** when behavior changes (`development-loop` → `implement`); still hold the **`verify`** gate (fresh evidence) before any "done" claim; still get a **fresh-session `review`** for anything but a truly trivial edit; still raise the branch through `closing-a-phase`. Record the fast-path choice and why in the feature's `specs/NNN-slug/status.md` notes.
+On the fast-path: skip Roadmap, Design, and Plan; still **write the test first** when behavior changes (`development-loop` → `implement`); still fill the **four-lens gate** with fresh evidence before any "done" claim; still get a **fresh-session `review`** for anything but a truly trivial edit; still raise the branch through `closing-a-phase`. Record the fast-path choice and why in the feature's `specs/NNN-slug/status.md` notes.
 
 If any qualifier fails — ambiguity, a design decision, more than one concern — it is **not** small: run the full pipeline. When unsure, take the full path.
 

@@ -6,9 +6,9 @@ argument-hint: "Point at the feature, e.g. specs/001-auth/ (its tasks.md), or a 
 
 # Test Strategy
 
-`planning` slices a feature into tasks; the loop's `implement` writes the test **first** for one behavior and watches it fail; `verify` proves the whole suite is **green** with fresh evidence. None of them owns the question above the feature's tasks: **what deserves a test, at which layer, and against what boundary — for this whole feature.** That is this skill.
+`planning` slices a feature into tasks; the loop's `implement` writes the test **first** for one behavior and watches it fail, then proves the whole suite **green** with fresh evidence in its report. None of them owns the question above the feature's tasks: **what deserves a test, at which layer, and against what boundary — for this whole feature.** That is this skill.
 
-It is the strategy layer for the tests of **one feature** — mostly **unit** and **integration** — settled **once, inside the Plan phase, after the tasks are cut and before the `development-loop` begins**. A strategy re-decided on every task drifts and overlaps; settled per feature, the tests stay coherent as a suite. **End-to-end is not a feature concern**; assembled-product journeys are owned by `e2e-testing` and run at a milestone/release, not on every feature. This skill tells you which unit/integration tests each of the feature's tasks must write, so `implement` and `verify` have the right ones; it doesn't gate releases (that's `e2e-testing`).
+It is the strategy layer for the tests of **one feature** — mostly **unit** and **integration** — settled **once, inside the Plan phase, after the tasks are cut and before the `development-loop` begins**. A strategy re-decided on every task drifts and overlaps; settled per feature, the tests stay coherent as a suite. **End-to-end is not a feature concern**; assembled-product journeys are owned by `e2e-testing` and run at a milestone/release, not on every feature. This skill tells you which unit/integration tests each of the feature's tasks must write, so `implement` has the right ones to build and prove; it doesn't gate releases (that's `e2e-testing`).
 
 **Self-contained.** Use it to set a feature's test strategy, whether or not `fight` is driving; `fight`/`planning` simply call it when they're active.
 
@@ -34,17 +34,17 @@ The layer is chosen by **what the test must prove**, not by habit. The more of t
 - When judging whether a feature is covered enough — at review, or before a release.
 - When the project has no declared test command and you need to find it.
 
-**Do NOT use** per task — a strategy re-decided on every task drifts and overlaps; settle it once for the feature. Not as the test-first ritual itself (that's `implement`), as the green-evidence gate (that's `verify`), or for the assembled-product release check (that's `e2e-testing`, run at a milestone). This skill decides the feature's unit/integration strategy; those steps _do_, _prove_, and _release-gate_ it.
+**Do NOT use** per task — a strategy re-decided on every task drifts and overlaps; settle it once for the feature. Not as the test-first ritual itself (that's `implement`, which also holds the green-evidence bar), or for the assembled-product release check (that's `e2e-testing`, run at a milestone). This skill decides the feature's unit/integration strategy; those steps _do_, _prove_, and _release-gate_ it.
 
 ## When it runs vs. the loop
 
-| Scope               | What runs                                              | Owned by      | When                                       |
-| ------------------- | ------------------------------------------------------ | ------------- | ------------------------------------------ |
-| **Plan phase**      | The phase's (or feature's) unit + integration strategy | this skill    | once, after tasks are cut, before the loop |
-| **Loop (per unit)** | `implement` writes tests; `verify` proves green        | the loop      | every unit, in `development-loop`          |
-| **Milestone**       | End-to-end journeys on the assembled product           | `e2e-testing` | before a release/deploy                    |
+| Scope               | What runs                                                       | Owned by      | When                                       |
+| ------------------- | --------------------------------------------------------------- | ------------- | ------------------------------------------ |
+| **Plan phase**      | The phase's (or feature's) unit + integration strategy          | this skill    | once, after tasks are cut, before the loop |
+| **Loop (per unit)** | `implement` writes tests, proves them green, and fills the gate | the loop      | every unit, in `development-loop`          |
+| **Milestone**       | End-to-end journeys on the assembled product                    | `e2e-testing` | before a release/deploy                    |
 
-This skill is **set up once, in Plan** — it is not a loop step. The `development-loop` only runs `implement -> verify -> review`; the strategy they follow was settled here. Do not write e2e tests per feature — they're slow, brittle, and belong to the milestone gate. A feature proves its behaviors at the unit/integration layer; the assembled system is proven once, at the milestone.
+This skill is **set up once, in Plan** — it is not a loop step. The `development-loop` only runs `implement -> review`; the strategy they follow was settled here. Do not write e2e tests per feature — they're slow, brittle, and belong to the milestone gate. A feature proves its behaviors at the unit/integration layer; the assembled system is proven once, at the milestone.
 
 ## The Layers
 
@@ -67,7 +67,7 @@ The shape is a pyramid, not a diamond: most tests are unit, some integration, fe
 - **Deterministic or it doesn't count.** No wall-clock dependence (inject the clock), no unseeded randomness, no fixed ports, no dependence on test order or leftover state. Each test sets up and tears down its own world.
 - **Treat flaky as broken.** An intermittently failing test is a defect — a real race, a shared-state leak, or a brittle wait. Fix the cause; never `sleep`, never re-run until green. Quarantine only with a tracked issue.
 - **Cover behaviors, not lines.** Cover the branches that matter (boundaries, error paths, the new behavior) — a 100% number over trivial getters proves nothing. Coverage is a question you ask ("is this behavior pinned?"), not a trophy.
-- **The command is declared, not assumed — and this is the one place it's settled.** Per `AGENTS.md`, the project names its test/check command. Discover it once here; `implement` and `verify` use the command this step nails down rather than re-deriving it. Never assume `make test` or `npm test`.
+- **The command is declared, not assumed — and this is the one place it's settled.** Per `AGENTS.md`, the project names its test/check command. Discover it once here; `implement` uses the command this step nails down rather than re-deriving it. Never assume `make test` or `npm test`.
 - **Each task's test comes from the feature's strategy.** Per `AGENTS.md`, tests come with the behavior that needs them. The strategy names which task writes which test; don't defer tests to a "write the tests" task — that layer-task is an anti-pattern — and don't add a test the strategy doesn't call for, or change a layer, without updating it.
 
 ## Procedure
@@ -76,7 +76,7 @@ The shape is a pyramid, not a diamond: most tests are unit, some integration, fe
 
 Read `AGENTS.md` for the project's test/check command. If it isn't there, discover it — in order: a `Makefile` target (`check`, `test`), `package.json` scripts, `pyproject.toml`/`tox.ini`, `Cargo.toml`, `go test`, or the project's CI workflow file. If none exists, say so and propose the command to the user before using it. Never invent one silently.
 
-This is the **single source of truth** for how the command is found: `implement` runs it during GREEN, and `verify` runs it for fresh evidence — neither re-derives it. If you find it already recorded (in `AGENTS.md`, a prior status note, or a CI file), reuse that instead of searching again.
+This is the **single source of truth** for how the command is found: `implement` runs it during GREEN and again for the fresh evidence in its report — it never re-derives it. If you find it already recorded (in `AGENTS.md`, a prior status note, or a CI file), reuse that instead of searching again.
 
 ### 2. Enumerate the feature's behaviors and map them to tasks
 
@@ -98,11 +98,11 @@ When a whole phase was planned in one run, the **command and shared seams are de
 
 ### 6. Hand the strategy to the loop
 
-The strategy is now written down; the Plan phase is done. In the `development-loop`, `implement` writes each task's test first (RED-GREEN-REFACTOR), `verify` proves the suite green, and `review` judges the diff — all following the strategy recorded here. This skill sets the strategy; it does not write the tests.
+The strategy is now written down; the Plan phase is done. In the `development-loop`, `implement` writes each task's test first (RED-GREEN-REFACTOR), proves the suite green, and fills the gate; `review` judges the diff — all following the strategy recorded here. This skill sets the strategy; it does not write the tests.
 
 ### 7. Keep it honest and live
 
-When a test lands, check it is honest: does it fail if the behavior breaks (invert the condition and watch)? Does anything depend on order, clock, or shared state? Would it catch a regression, or just re-state the implementation? When a task or a spec revision adds behavior, update the strategy first, then the test. `review` judges the tests (including the mutation check); `verify` runs the full suite for fresh evidence.
+When a test lands, check it is honest: does it fail if the behavior breaks (invert the condition and watch)? Does anything depend on order, clock, or shared state? Would it catch a regression, or just re-state the implementation? When a task or a spec revision adds behavior, update the strategy first, then the test. `review` judges the tests (including the mutation check); `implement` runs the full suite and records the fresh evidence.
 
 ## Red Flags
 
@@ -135,4 +135,4 @@ Then the loop takes over, and these hold there:
 - [ ] Tests assert observable behavior, not implementation detail; one behavior each.
 - [ ] Tests are deterministic and independent — no clock, order, port, or shared-state dependence; no bare sleeps.
 - [ ] Flaky tests were treated as defects, not re-run to green.
-- [ ] The tests were written test-first by `implement`; `review` and `verify` still gate the feature.
+- [ ] The tests were written test-first by `implement`; the four-lens gate and the `review` still gate the feature.

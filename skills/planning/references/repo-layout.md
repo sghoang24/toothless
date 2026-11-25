@@ -12,7 +12,7 @@ lives in exactly one place.
 | **Spec**                  | One feature's agreed requirements, with testable acceptance criteria (`AC-n`).                                             | `specs/NNN-slug/spec.md`                                      |
 | **Design**                | The shape of the solution for one feature: data model, interfaces, flows, screens. May be recorded as "skipped: <reason>". | `specs/NNN-slug/design.md`                                    |
 | **Task**                  | One reviewable PR (≈300 lines). Belongs to a feature.                                                                      | `specs/NNN-slug/tasks.md`                                     |
-| **Review**                | Findings for one feature, with the return path.                                                                            | `specs/NNN-slug/review.md`                                    |
+| **Review**                | The feature-level roll-up of the unit reviews, with the return path.                                                       | `specs/NNN-slug/review.md`                                    |
 | **Phase**                 | A milestone grouping features that together deliver something runnable.                                                    | `specs/_roadmap.md`                                           |
 | **System-wide decisions** | Architecture and ADRs shared by many features. A living document that grows with the features.                             | `docs/architecture/architecture.md`, `docs/architecture/adr/` |
 
