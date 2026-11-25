@@ -58,10 +58,29 @@ A dispatch describes **one unit**, not the session. Compose it as:
 
 Do not carry accumulated prior-unit summaries ("state after Tasks 1-3") into later dispatches. A pointer to a parked finding in the area this unit touches is the one exception: carry that ledger entry, nothing more.
 
+## The review context pack
+
+A reviewer is a fresh session, so it otherwise re-reads the same spec, design, and architecture on every unit. Build that scaffold **once per feature** and hand every reviewer a single file:
+
+```
+<scratch>/specs-NNN-slug/review-context.md
+```
+
+It holds only what a reviewer needs and nothing it can derive from the diff:
+
+- The feature's acceptance criteria, verbatim from `spec.md` (current `Revision:`).
+- The parts of `design.md` and `architecture.md` the feature touches: interfaces, boundaries, ownership.
+- The project conventions the review judges against (`AGENTS.md`: service layer, boundaries, commit style).
+- The feature's `## Test strategy` line (command, layers, seams).
+- Any parked findings still open in the feature's area, one line each.
+
+Do **not** put the diff, the briefs, or the reports in the pack — those are per-unit and the reviewer gets them separately. Rebuild the pack only when the spec revision, the design, or the strategy changes; say so when you do.
+
 ## Rules
 
-- **Hand artifacts over as files.** Brief in, report out. Never paste the session's history into a dispatch.
+- **Hand artifacts over as files.** Brief in, report out, and a context pack in for review. Never paste the session's history into a dispatch.
 - **One brief per unit; one report per unit.** Name them after the unit so the pairing is mechanical — a task ID, or the batch's member range.
+- **One context pack per feature.** Build it before the first review, reuse it for every unit review and the final review, and rebuild it only on a spec/design/strategy change.
 - **The brief is the interface.** If a requirement is missing from it, fix the brief and re-dispatch — do not paper over a gap with chat text.
 - **Scratch is git-ignored scratch.** Briefs and reports are working files, not deliverables. `git clean -fdx` destroys them; the durable record is the commit log and the ledger.
 - **The controller keeps a pointer.** Note the brief/report paths for the current unit in `specs/NNN-slug/status.md` notes, so a compacted session can find them again.

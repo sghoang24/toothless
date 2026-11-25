@@ -1,69 +1,105 @@
-# The Final Review (Whole-Branch)
+# The Final Review (Roll-Up)
 
-Per-unit reviews judge each diff in isolation, against its own unit. The **final review** runs once, after the last unit is done, and judges the branch as a whole. It catches what no per-unit review can: the seams between units, the feature against its spec, and the defects that only appear once the pieces sit together.
+Per-unit reviews already judged each diff. The final review does **not** re-review the branch — it
+**rolls their verdicts up** and checks the few things only exist at feature scale: coverage,
+contradictions, and anything no unit owned.
 
-Run it in a fresh session, like any review. The reviewer reads the **whole branch diff** (the merge base to `HEAD`), not the last unit's diff.
+It is a **read of the unit reviews and the gate tables**, not a fresh diff pass. That is deliberate: a
+second full review is the most expensive thing in the loop and the least likely to find something a
+unit review missed, because it reads the same code against the same context pack.
+
+Run it once, after the last unit is done, in a fresh session.
 
 ## When to Run
 
 - Every unit in `tasks.md` is done or parked-with-ruling.
 - Before handing to `closing-a-phase`.
 
-Not before. A final review over a half-built feature reviews a moving target and re-runs after every unit.
+## Inputs (and nothing else)
 
-## What It Adds
+- Every `unit-<N>-review.md` (see `review.md` → _Severity and report_).
+- The gate table from each unit's report, or the rolled-up table in `status.md`.
+- The feature's `review-context.md` — for the acceptance criteria, not for re-reading the code.
 
-| Per-unit review                 | Final review                                  |
-| ------------------------------- | --------------------------------------------- |
-| One unit's diff vs its unit.    | The whole branch vs the feature spec.         |
-| Is this change correct?         | Is this feature coherent?                     |
-| Local seams: this diff's edges. | Global seams: between units, and to the base. |
-| The unit's acceptance criteria. | The feature's stated outcome, end to end.     |
+Do **not** generate the whole-branch diff. Do not open the changed files unless one specific
+contradiction needs the line it points at.
 
-Look specifically for:
+## What the Roll-Up Checks
 
-- **Seams between units.** Two units each correct, but inconsistent together: duplicated helpers, two ways of doing the same thing, a name that drifted, an interface bent to fit a later unit.
-- **A batch that drifted.** A batched run should be uniform. If the members ended up in several shapes — one file renamed properly, another with the old name kept as an alias — that is the seam a per-batch review was too close to see.
-- **The feature against its spec.** Every acceptance criterion in `spec.md` (`status: approved`, current `Revision:`), walked once against the branch as a whole. A criterion no single unit owned is the classic miss.
-- **Accumulated drift.** N honest local decisions that sum to a shape nobody chose: a layer that got fat, a pattern used three ways, dead code from a superseded unit.
-- **The base's problems.** A defect already in the base is not this branch's regression — name it, but do not block on it. Separate the two.
-- **Cross-cutting gaps.** Migration + model + API + docs: did the feature's story get told in all the places it touches? Anything the per-unit view was too narrow to see.
+| Check              | Question                                                                                | What a failure looks like                                          |
+| ------------------ | --------------------------------------------------------------------------------------- | ------------------------------------------------------------------ |
+| **Coverage**       | Is every acceptance criterion in the context pack answered by at least one unit review? | A criterion no unit owned — the classic miss                       |
+| **Contradictions** | Do two unit reviews disagree about the same code or interface?                          | Unit 3 says the helper is extracted, unit 5 says it was duplicated |
+| **Parked debt**    | Is every `open` gate row and every parked finding accounted for?                        | An `open` row nobody fixed and nobody ruled on                     |
+| **Verdicts**       | Does the worst unit verdict still hold?                                                 | A unit marked Ready whose finding was later reopened               |
+| **Consistency**    | Did two units solve the same problem two ways?                                          | Two error-handling styles, two names for one concept               |
+
+If all five hold, the roll-up passes. That is the normal case, and it should take minutes, not a
+session.
 
 ## Procedure
 
-1. **Check the branch size first.** The whole branch may legitimately exceed the per-unit ~300-line rule — a feature is bigger than a unit. Judge the _units_, not the branch, against that rule; a branch that is one giant unit is still the finding.
-2. **Generate the whole-branch diff** — from the branch's merge base with the target branch (`git merge-base <target> HEAD`) to `HEAD`.
-3. **Dispatch one fresh reviewer** with `references/reviewer-prompt.md`, adapted: the subject is the whole branch, `BASE` is the merge base, and the specification is the feature's `spec.md` (`status: approved`) + `design.md`, not a single unit.
-4. **Walk the axes at feature scale.** Requirements → every acceptance criterion, once, end to end. Architecture → the feature's shape, not one diff's. Clean code → consistency across the whole change.
-5. **A single fix wave.** Collect all findings, then fix them in **one** pass — not a unit-by-unit re-entry. A final review that turns into another loop has found a structural problem, not a list of fixes.
-6. **Route the outcome**, exactly as a per-unit review does: code → `implement`; task list → `planning`; design → `system-design`; requirement → `roadmap` (a new spec revision, then gate two again), or `brainstorming` if the PRD itself is wrong.
-7. **Hand to `closing-a-phase`** when the final review is clean (or Minor-only).
+1. **Collect the inputs.** List the unit review files; if one is missing for a done unit, that is a
+   finding — the unit is not reviewable after the fact. Say so.
+2. **Walk the criteria.** For each acceptance criterion, name the unit review that covers it. A gap goes
+   in the report; do not go read the code to fill it.
+3. **Diff the verdicts.** Look for contradictions, duplicated solutions, and unresolved `open` rows.
+   When two reviews conflict, the line they cite is the one thing worth opening.
+4. **Write the roll-up** to `specs/NNN-slug/review.md` (the feature-level file, distinct from the
+   per-unit ones).
+5. **A single fix wave.** Collect every finding, fix in one pass — not a unit-by-unit re-entry. If the
+   roll-up turns up more than a handful, the problem is structural: route it and say so.
+6. **Route and hand off**, exactly as a unit review does (code → `implement`, task list → `planning`,
+   design → `system-design`, requirement → `roadmap`, PRD → `brainstorming`). When clean (or
+   Minor-only), hand to `closing-a-phase`.
+
+## The one exception: a seam needs eyes
+
+A roll-up reads verdicts, so it can miss a seam that **no unit review could see** — two units each
+correct, contradictory together. Close reading catches most of these because the reviews cite lines.
+
+If a specific seam is genuinely unclear from the reviews (they never overlapped that area), that is the
+**only** time to open the branch: read just those two units' diffs, answer the seam question, and stop.
+Not a full pass — a targeted look at one contradiction. Say you did it and why.
 
 ## Report
 
-Write it to `specs/NNN-slug/review-final.md`, same shape as a unit review (`references/review.md` → _Severity and report_), with the verdict stated against the **feature**, not a unit:
+Write it to `specs/NNN-slug/review.md`, short — this is a roll-up, not a third review:
 
-- `Ready` — the feature is coherent and complete; hand to landing.
-- `Ready with fixes` — the findings can be fixed in one wave; do so, then land.
-- `Not ready` — a structural problem; route it and say so plainly.
+```markdown
+**Verdict:** Ready | Ready with fixes | Not ready — <against the feature, one or two sentences>
+
+### Coverage
+
+<criterion → which unit review answered it; list the gaps>
+
+### Conflicts
+
+<none, or the contradiction, both citations, and which line settles it>
+
+### Carried debt
+
+<every `open` row and parked finding, with its ruling; "none" if none>
+```
+
+- `Ready` — every criterion covered, no unresolved conflict; hand to landing.
+- `Ready with fixes` — fixable in one wave; do so, then land.
+- `Not ready` — a structural gap; route it and say so plainly.
 
 ## Red Flags
 
-| Thought                                                     | Reality                                                                     |
-| ----------------------------------------------------------- | --------------------------------------------------------------------------- |
-| "Every unit was reviewed, the final review is redundant"    | Unit reviews are diff-scoped. Seams and spec-vs-feature need the branch.    |
-| "I'll run it after each unit to be safe"                    | It judges the whole; run it once, at the end.                               |
-| "It found thirty things, so we loop unit by unit again"     | A single fix wave. Thirty findings at this stage means a structural gap.    |
-| "A base defect blocks this branch"                          | Name it, don't block on it. It is not this branch's regression.             |
-| "The diff is 800 lines, so it fails the size rule"          | A feature is bigger than a unit. Judge the units, not the branch.           |
-| "Spec criterion 4 wasn't in any unit, so it's out of scope" | A criterion no unit owned is exactly what the final review exists to catch. |
-| "The batch looked uniform close up"                         | Per-batch review is close-up. Drift between members shows here.             |
+| Thought                                                 | Reality                                                                  |
+| ------------------------------------------------------- | ------------------------------------------------------------------------ |
+| "I'll just re-review the whole branch to be safe"       | That is the expensive pass this skill replaced. Roll up the units.       |
+| "Every unit passed, so the roll-up can't find anything" | Coverage and contradictions are exactly what per-unit review cannot see. |
+| "I'll open the files to double-check the review"        | Only for one contradiction the reviews cannot settle.                    |
+| "It found thirty things, so we loop unit by unit again" | A single fix wave. Thirty at this stage means a structural gap.          |
+| "I'll re-run the suite to confirm"                      | The gate tables carry the evidence. Do not re-run the loop.              |
 
 ## Completion Check
 
-- [ ] Ran once, after the last unit, in a fresh session.
-- [ ] Judged the **whole branch** (merge base → `HEAD`), not the last diff.
-- [ ] Every acceptance criterion in `spec.md` walked against the branch.
-- [ ] Seams, batch drift, accumulated drift, and cross-cutting gaps checked.
-- [ ] Findings fixed in a single wave, or parked-with-ruling and the human told.
-- [ ] `review-final.md` written; the branch handed to `closing-a-phase` only when clean.
+- [ ] Ran once, after the last unit, from the unit reviews and context pack — not a fresh diff pass.
+- [ ] Every acceptance criterion traced to a unit review; gaps named.
+- [ ] Contradictions, duplicated solutions, and unresolved `open` rows checked.
+- [ ] Any code opened was only to settle one specific seam, and that was said.
+- [ ] Findings fixed in a single wave or parked-with-ruling; `review.md` written; handed to `closing-a-phase` only when clean.

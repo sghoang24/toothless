@@ -127,27 +127,28 @@ directly, or let fight drive — the skills don't depend on it.
   `test-strategy`. A design is optional enrichment — with none, the technical calls land as plan
   calls. Output: `specs/NNN-slug/tasks.md` per planned feature.
 
-### Loop skills (`implement -> verify -> review`)
+### Loop skills (`implement -> review`)
 
 - **development-loop** — the **whole loop, contained in one skill**. It takes an approved task list
   and drives the feature's tasks to landed code, one at a time: a fresh **implementer** subagent per
-  task (which writes the test first, watches it fail, makes it pass, and proves it green — the
-  `verify` bar lives in its evidence), then a fresh **reviewer** subagent, cycles capped at **3 per
-  task**, and a **final whole-branch review** after the last task. It owns the loop's rules, so
-  neither `fight` nor any single step restates them. Its step detail and subagent prompts live
-  in `skills/development-loop/references/`.
+  task (writes the test first, watches it fail, makes it pass, proves it green in its report, and fills
+  the four-lens gate), then a fresh **reviewer** subagent that confirms or flips each lens, cycles
+  capped at **3 per unit**, and a **final whole-branch review** after the last task. It owns the loop's
+  rules, so neither `fight` nor any single step restates them. Its step detail and subagent prompts
+  live in `skills/development-loop/references/`.
 
-  The three steps are the pack's shared vocabulary: **`implement`** builds one task test-first,
-  **`verify`** holds the fresh-evidence gate (the implementer's own report, read and re-run by the
-  coordinator), and **`review`** judges the diff against intent in a fresh session.
+  Two steps are the pack's shared vocabulary: **`implement`** builds one task test-first, proves it
+  green, and fills the **four-lens gate** (`code`, `security`, `ui`, `ux`); **`review`** confirms or
+  flips each row in a fresh session and returns **one** verdict — the worst lens. There is no separate
+  `verify` stage.
 
 **Where "Test" lives.** Test strategy is **not** a loop step — `test-strategy` settles it once per
 feature inside the Plan phase (command, layers, seams, which task pins which `AC`), written to
 `specs/NNN-slug/tasks.md`. The loop then runs it: `implement` writes each task's tests test-first
-(RED-GREEN-REFACTOR), `verify` proves them green, and `review` judges the diff. Keeping the
-strategy separate avoids both layer-tasks ("now write the tests") and per-task strategy drift. A
-feature's tests are unit/integration; end-to-end journeys are the milestone gate (`e2e-testing`),
-not a per-feature step.
+(RED-GREEN-REFACTOR), its report carries the fresh green evidence, and `review` judges the diff
+across the four-lens gate. Keeping the strategy separate avoids both layer-tasks ("now write the
+tests") and per-task strategy drift. A feature's tests are unit/integration; end-to-end journeys
+are the milestone gate (`e2e-testing`), not a per-feature step.
 
 ### Test strategy (Plan phase, not the loop)
 
@@ -156,7 +157,7 @@ not a per-feature step.
   boundary sits, determinism and flakiness, coverage that matters, and how to find the project's
   test command. **End-to-end is not a per-feature concern** — assembled-product journeys belong to
   `e2e-testing` at a milestone. Decides _which_ tests (into `tasks.md`); the loop's `implement`
-  writes them test-first and `verify` proves them green.
+  writes them test-first and proves them green in its gate.
 
 **Loop rules live in `development-loop`.** The cycle cap (3, **per unit**, then STOP and ask), the
 "each cycle changes the approach" escalation, the fresh-session reviewer requirement, the
@@ -285,7 +286,7 @@ runs (the first spec bootstraps what's missing).
     ├── planning/          #   phase or feature tasks (+ references/tasks-template.md,
     │                      #     task-sizing.md, repo-layout.md, question-bank.md)
     ├── test-strategy/     #   Plan phase: feature test strategy (what/where/how much)
-    ├── development-loop/  #   the loop: implement -> verify -> review, per unit (task or batch)
+    ├── development-loop/  #   the loop: implement -> review, per unit (task or batch)
     │                      #     (+ references/implement.md, review.md, final-review.md,
     │                      #        implementer-prompt.md, reviewer-prompt.md, brief-and-report.md)
     ├── closing-a-phase/   # phase exit: land last branch, close phase

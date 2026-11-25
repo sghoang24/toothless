@@ -25,7 +25,7 @@ as the workflow runs. Do not scaffold them here.
 ## Source of truth (no duplication)
 
 - The **workflow and its gates** live in `skills/fight/SKILL.md`.
-- The **development loop** (`implement -> verify -> review`) lives in `skills/development-loop/SKILL.md`.
+- **development loop** (`implement -> review`, with the four-lens gate) lives in `skills/development-loop/SKILL.md`.
 - Each phase's **how** lives in its own skill; the spine links to it, never restates it.
 - The **skills catalogue** is `skills/README.md`.
 

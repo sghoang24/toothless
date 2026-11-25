@@ -1,26 +1,21 @@
-# The `implement` Step (and its `verify` evidence)
+# The `implement` Step (with its green evidence)
 
-The `implement` step builds **one unit** and proves it green. It is the workhorse of the loop `[implement -> verify -> review]`, and it carries the `verify` step's fresh-evidence bar with it: the implementer writes the test first, watches it fail, makes it pass, runs the full suite, and puts the evidence in its report. There is no separate verifier subagent — the evidence is held here and read by the controller.
+The `implement` step builds **one unit**, proves it green, and fills the four-lens gate. It is one of the loop's two steps — `implement -> review` — and it carries the whole green-evidence bar with it: the implementer writes the test first, watches it fail, makes it pass, runs the full suite, and puts the evidence in its report and its gate rows. There is no separate verifier stage and no separate subagent.
 
 One invocation = **one unit**: usually a single task from `specs/NNN-slug/tasks.md`, or a **batch** of small same-shape tasks dispatched together (see the parent skill's _Batching_). Not a feature, not a phase. The unit's `Verify:` line, or its outcome and acceptance criteria, is the definition of done.
 
 **For a batch:** the brief lists every member — its file and its change. Make every listed change, nothing else, and report per member. A batch is behavior-free by definition, so there is **no new RED**: the existing suite is the evidence that each edit is faithful. If one listed member turns out to need a real behavior change, a judgment call, or its own test, do **not** improvise — report `BLOCKED` for that member; it should have been dispatched on its own.
 
-## Standalone vs orchestrated
+## Inputs and stance
 
-- **Do the work yourself.** Never dispatch another implementer. Inside `development-loop` this runs as the `implementer` subagent — dispatching from here would recurse.
-- **You do not run the loop.** Review belongs to the controller (`development-loop`). When the task's tests pass and the evidence is recorded, report and stop.
-- **Standalone** (called directly): after reporting, say in one line that `review` comes next and ask whether to start. Do not invoke it yourself.
-- **Orchestrated**: report and stop; the controller decides what runs next. Do not write `status.md` or tick `tasks.md` unless the controller's brief tells you to; put what it needs in the report.
+- The **brief** is your single source of requirements, with the exact values to use verbatim.
+- The feature's `## Test strategy` (command, layers, seams), plus the parts of `docs/architecture/architecture.md` and `design.md` the task touches.
+- Interfaces from earlier units that the brief cannot know (the controller supplies them).
+- **Do the work yourself** — never dispatch another implementer; inside `development-loop` you _are_ the implementer subagent.
+- **You do not run the loop.** Review is the controller's job. Report and stop; do not write `status.md` or tick `tasks.md` unless the brief says to.
+- **Standalone** (called directly): after reporting, say in one line that review comes next and ask whether to start.
 
-## Inputs
-
-- The **brief** the controller handed you: the task's requirements, with the exact values to use verbatim. It is your single source of requirements.
-- The feature's `## Test strategy` (in `specs/NNN-slug/tasks.md`) for the command, layers, and shared seams.
-- The parts of `docs/architecture/architecture.md` and the feature's `design.md` the task touches.
-- Interfaces and decisions from earlier tasks that the brief cannot know (the controller supplies these).
-
-If the task has no outcome or nothing to verify against, it is not sized: report it as `BLOCKED` and send it back to `planning`. Do not guess.
+If the task has no outcome or nothing to verify against, it is not sized: report `BLOCKED` and send it back to `planning`.
 
 ## Core Rules
 
@@ -42,18 +37,25 @@ If the task has no outcome or nothing to verify against, it is not sized: report
 4. **GREEN.** Write the simplest code that passes, in the service layer. No extra features, no speculative abstraction. Run the focused test, then the full suite. **For a batch:** make each listed edit exactly as the brief states it, one file at a time, and re-run the suite.
 5. **REFACTOR.** Improve names and remove duplication without changing behavior; re-run the suite after each step. New behavior means a new test, back to RED.
 6. **Repeat** per behavior (or per member, for a batch) until the unit's acceptance criteria are satisfied. Commit in logical chunks as you go.
-7. **Verify the evidence — the `verify` gate.** Before reporting, confirm what you are about to claim with a run in this session, not a memory of green:
-   - **Identify** the claim and the exact command that proves it — the project's declared command (`test-strategy` found it, per `AGENTS.md`), plus whatever the unit's `Verify:` line names.
-   - **Run** it fresh and in full. Do not narrow scope to the files you touched.
-   - **Read** the entire output: exit code, failure count. A single failing test is red, however good the rest looks.
-   - **Match** output to claim. If it does not confirm the claim, the claim is false — say the real status, naming what failed.
-   - Walk the unit's `Verify:` line item by item. Report gaps; do not report a vibe.
-   - **For a batch:** also confirm every listed member is present in the diff, and that nothing outside the list changed.
-8. **Report and stop.** Write the full report to the report file the controller named, then reply with the short status contract (below). Include the TDD evidence, the full-suite result, files changed, diff size, anything out of scope you noticed, and any blocker. A design gap goes back to `system-design`, not into your code.
+7. **Prove the evidence.** Before reporting, re-run in this session — not a memory of green — via the project's declared command plus whatever the unit's `Verify:` line names. Run it **fresh and in full**; do not narrow scope to the files you touched. Read the whole output: one failing test is red however good the rest looks. Match output to claim — if it does not confirm, say the real status and name what failed. Walk the `Verify:` line item by item. For a batch, also confirm every listed member is in the diff and nothing else changed.
+8. **Report and stop.** Write the full report to the report file, then reply with the short status. A design gap goes back to `system-design`, not into your code.
 
-## The verify gate, in one line
+## The green bar, in one line
 
 **NO COMPLETION CLAIM WITHOUT FRESH VERIFICATION EVIDENCE.** "Should pass", "probably fixed", and "looks right" are not verification. A silently-skipped red is a false report; a red reported is fine.
+
+## Fill the gate, then report
+
+Before you write the report, fill one row per lens with **evidence**:
+
+| Lens     | green means                                                                                      |
+| -------- | ------------------------------------------------------------------------------------------------ |
+| code     | the test that covers the behavior, and where it lives (file:line)                                |
+| security | the trust boundary this diff touches and how it is handled — or `n/a: no trust boundary touched` |
+| ui       | the screen/state changed and its `docs/design/` reference — or `n/a: no user-facing surface`     |
+| ux       | the flow/state walked and the message shown — or `n/a` with the reason                           |
+
+`n/a` is a complete answer when it names why. A `green` row without evidence is not green — leave it `open` and say what is missing. Do not invent work to fill a row.
 
 ## Report contract
 
@@ -62,20 +64,11 @@ Write the full report to the report file. It carries:
 - What you implemented (or attempted, if blocked).
 - **TDD evidence:** RED — the command, the relevant failing output, and why that failure was expected; GREEN — the command and the passing output.
 - The full-suite command and result; every failure named, including pre-existing ones.
+- **The four-lens gate table** — one row per lens, `green` with evidence or `n/a` with the reason.
 - Files changed; the diff size.
 - Self-review findings (below) and any concerns.
 
-Then reply with **only** (under ~15 lines — the detail lives in the file):
-
-| Field            | Value                                                          |
-| ---------------- | -------------------------------------------------------------- |
-| **Status**       | `DONE` \| `DONE_WITH_CONCERNS` \| `BLOCKED` \| `NEEDS_CONTEXT` |
-| **Commits**      | short SHA + subject                                            |
-| **Test summary** | one line, e.g. "14/14 passing, output pristine"                |
-| **Concerns**     | optional                                                       |
-| **Report file**  | its path                                                       |
-
-Use `DONE_WITH_CONCERNS` if you finished but have doubts about correctness; `BLOCKED` if you cannot complete it; `NEEDS_CONTEXT` if you need information that was not provided. Never silently produce work you are unsure about.
+Then reply with **only** the short status (under ~15 lines — the detail lives in the file): `DONE` | `DONE_WITH_CONCERNS` | `BLOCKED` | `NEEDS_CONTEXT`, the commits (short SHA + subject), a one-line test summary, any concerns, and the report path. Use `DONE_WITH_CONCERNS` if you finished but have doubts; never silently produce work you are unsure about.
 
 ## Self-review before reporting
 
@@ -90,7 +83,6 @@ Read your own diff with fresh eyes. **Completeness:** did I implement everything
 | "It passed a minute ago"                     | Stale. A fresh run in this session is the only evidence.                     |
 | "My new test is green, the task is done"     | A green file is not a green suite. Run the full command.                     |
 | "One unrelated test was red, not my problem" | Report it by name. You watched it fail; silence is a false report.           |
-| "I'll fold in this adjacent cleanup"         | Out of scope. It is another task.                                            |
 | "It's a bit over 300 lines, fine"            | It is two tasks. Oversized diffs do not get reviewed properly.               |
 | "I'll put the logic in the controller"       | `AGENTS.md`: business logic lives in the service layer.                      |
 | "I'll dispatch a reviewer to check my work"  | Review is the controller's job. Report instead.                              |
